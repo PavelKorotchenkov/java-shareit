@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
 public class ItemDtoMapper {
 	public static ItemDto toDto(Item item) {
