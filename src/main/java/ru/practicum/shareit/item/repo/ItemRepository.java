@@ -12,7 +12,7 @@ public interface ItemRepository {
 
 	Optional<Item> getById(Long id);
 
-	List<Item> showItemsByOwner(Long id);
+	List<Long> findByOwnerId(Long id);
 
-	List<Item> searchAvailableByText(String text);
+	List<Item> searchBy(String text);
 }

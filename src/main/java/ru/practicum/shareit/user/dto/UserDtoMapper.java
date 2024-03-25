@@ -18,4 +18,18 @@ public class UserDtoMapper {
 				.email(userDto.getEmail())
 				.build();
 	}
+
+	public static User toUserCreate(UserCreateDto userCreateDto) {
+		return User.builder()
+				.name(userCreateDto.getName())
+				.email(userCreateDto.getEmail())
+				.build();
+	}
+
+	public static User toUserUpdate(UserUpdateDto userUpdateDto) {
+		return User.builder()
+				.name(userUpdateDto.getName())
+				.email(userUpdateDto.getEmail())
+				.build();
+	}
 }

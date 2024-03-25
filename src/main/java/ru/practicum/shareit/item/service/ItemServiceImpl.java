@@ -3,66 +3,98 @@ package ru.practicum.shareit.item.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.AccessDeniedException;
-import ru.practicum.shareit.exception.ItemNotFoundException;
+import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemCreateDto;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoMapper;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repo.ItemRepository;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ItemServiceImpl implements ItemService {
 	private final ItemRepository itemRepository;
+	private final UserService userService;
 
 	@Autowired
-	public ItemServiceImpl(ItemRepository itemRepository) {
+
+	public ItemServiceImpl(ItemRepository itemRepository, UserService userService) {
 		this.itemRepository = itemRepository;
+		this.userService = userService;
 	}
 
 	@Override
-	public Item add(Item item, User owner) {
+	public ItemDto add(ItemCreateDto itemCreateDto, Long ownerId) {
+		User owner = UserDtoMapper.toUser(userService.getById(ownerId));
+		Item item = ItemDtoMapper.toItemCreate(itemCreateDto);
 		item.setOwner(owner);
-		return itemRepository.add(item);
+		return ItemDtoMapper.toDto(itemRepository.add(item));
 	}
 
 	@Override
-	public Item update(Item item, Long itemId, User owner) {
-		Item checkedItem = getById(itemId);
-		if (!Objects.equals(owner.getId(), checkedItem.getOwner().getId())) {
+	public ItemDto update(ItemUpdateDto itemUpdateDto, Long ownerId) {
+		User owner = UserDtoMapper.toUser(userService.getById(ownerId));
+		Item checkItem = checkItem(itemUpdateDto.getId());
+		if (!Objects.equals(ownerId, checkItem.getOwner().getId())) {
 			throw new AccessDeniedException("Доступ к редактированию запрещен, " +
 					"только владелец может редактировать вещь.");
 		}
-		item.setId(itemId);
-		item.setOwner(owner);
-		return itemRepository.update(item);
+		Item itemToUpdate = ItemDtoMapper.toItem(getById(itemUpdateDto.getId(), ownerId));
+		itemToUpdate.setOwner(owner);
+
+		if (itemUpdateDto.getName() != null) {
+			itemToUpdate.setName(itemUpdateDto.getName());
+		}
+		if (itemUpdateDto.getDescription() != null) {
+			itemToUpdate.setDescription(itemUpdateDto.getDescription());
+		}
+		if (itemUpdateDto.getAvailable() != null) {
+			itemToUpdate.setAvailable(itemUpdateDto.getAvailable());
+		}
+
+		return ItemDtoMapper.toDto(itemRepository.update(itemToUpdate));
 	}
 
 	@Override
-	public Item getById(Long id) {
-		return checkItem(id);
+	public ItemDto getById(Long itemId, Long userId) {
+		userService.getById(userId);
+		return ItemDtoMapper.toDto(checkItem(itemId));
 	}
 
 	@Override
-	public List<Item> showItemsByOwner(Long id) {
-		return itemRepository.showItemsByOwner(id);
+	public List<ItemDto> findByOwnerId(Long ownerId) {
+		UserDto owner = userService.getById(ownerId);
+		return itemRepository.findByOwnerId(owner.getId())
+				.stream()
+				.map(this::checkItem)
+				.map(ItemDtoMapper::toDto)
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public List<Item> searchAvailableByText(String text) {
+	public List<ItemDto> searchBy(String text, Long userId) {
+		UserDto owner = userService.getById(userId);
 		if (text.isEmpty() || text.isBlank()) {
 			return new ArrayList<>();
 		}
-		return itemRepository.searchAvailableByText(text);
+		return itemRepository.searchBy(text)
+				.stream()
+				.map(ItemDtoMapper::toDto)
+				.collect(Collectors.toList());
 	}
 
 	private Item checkItem(Long id) {
 		Optional<Item> optItem = itemRepository.getById(id);
-		if (optItem.isEmpty()) {
-			throw new ItemNotFoundException("Вещь с таким id не найдена: " + id);
-		}
-		return optItem.get();
+		return optItem.orElseThrow(() -> new NotFoundException("Вещь с таким id не найдена: " + id));
 	}
 }

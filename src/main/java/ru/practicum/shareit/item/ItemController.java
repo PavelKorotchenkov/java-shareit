@@ -1,57 +1,39 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.ItemCreateDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoMapper;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemUpdateDto;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 @Slf4j
 public class ItemController {
 	private final ItemService itemService;
 
-	private final UserService userService;
-
-	@Autowired
-	public ItemController(ItemService itemService, UserService userService) {
-		this.itemService = itemService;
-		this.userService = userService;
-	}
-
 	@PostMapping
-	public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") long userId,
-						   @Valid @RequestBody ItemDto itemDto) {
-		log.info("Получен запрос на добавление вещи: {}", itemDto);
-		User owner = userService.getById(userId);
-		Item item = ItemDtoMapper.toItem(itemDto);
-		Item savedItem = itemService.add(item, owner);
-		ItemDto savedItemDto = ItemDtoMapper.toDto(savedItem);
+	public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
+						   @Valid @RequestBody ItemCreateDto itemCreateDto) {
+		log.info("Получен запрос на добавление вещи: {}", itemCreateDto);
+		ItemDto savedItemDto = itemService.add(itemCreateDto, ownerId);
 		log.info("Отработан запрос на добавление вещи: {}", savedItemDto);
 		return savedItemDto;
 	}
 
 	@PatchMapping("/{id}")
-	public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
+	public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
 							  @PathVariable Long id,
-							  @RequestBody ItemDto itemDto) {
-		log.info("Получен запрос на обновление вещи: {}", itemDto);
-		User owner = userService.getById(userId);
-		Item item = ItemDtoMapper.toItem(itemDto);
-		Item updatedItem = itemService.update(item, id, owner);
-		ItemDto updatedItemDto = ItemDtoMapper.toDto(updatedItem);
+							  @RequestBody ItemUpdateDto itemUpdateDto) {
+		log.info("Получен запрос на обновление вещи: {}", itemUpdateDto);
+		itemUpdateDto.setId(id);
+		ItemDto updatedItemDto = itemService.update(itemUpdateDto, ownerId);
 		log.info("Отработан запрос на обновление вещи: {}", updatedItemDto);
 		return updatedItemDto;
 	}
@@ -59,32 +41,22 @@ public class ItemController {
 	@GetMapping("/{id}")
 	public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
 						   @PathVariable Long id) {
-		User owner = userService.getById(userId);
-		Item item = itemService.getById(id);
-		return ItemDtoMapper.toDto(item);
+		return itemService.getById(id, userId);
 	}
 
 	@GetMapping
-	public List<ItemDto> getOwnerItems(@RequestHeader("X-Sharer-User-Id") long userId) {
-		log.info("Получен запрос на получение всех вещей владельца вещи: " + userId);
-		User owner = userService.getById(userId);
-		List<ItemDto> items = itemService.showItemsByOwner(userId)
-				.stream()
-				.map(ItemDtoMapper::toDto)
-				.collect(Collectors.toList());
-		log.info("Отработан запрос на получение всех вещей владельца вещи: " + userId);
+	public List<ItemDto> findByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
+		log.info("Получен запрос на получение всех вещей владельца вещи: " + ownerId);
+		List<ItemDto> items = itemService.findByOwnerId(ownerId);
+		log.info("Отработан запрос на получение всех вещей владельца вещи: " + ownerId);
 		return items;
 	}
 
 	@GetMapping("/search")
-	public List<ItemDto> searchByText(@RequestHeader("X-Sharer-User-Id") long userId,
-									  @RequestParam String text) {
+	public List<ItemDto> searchBy(@RequestHeader("X-Sharer-User-Id") long userId,
+								  @RequestParam String text) {
 		log.info("Получен запрос на поиск всех вещей по тексту: " + text);
-		User owner = userService.getById(userId);
-		List<ItemDto> items = itemService.searchAvailableByText(text.toLowerCase())
-				.stream()
-				.map(ItemDtoMapper::toDto)
-				.collect(Collectors.toList());
+		List<ItemDto> items = itemService.searchBy(text.toLowerCase(), userId);
 		log.info("Отработан запрос на поиск всех вещей по тексту: " + text);
 		return items;
 	}
