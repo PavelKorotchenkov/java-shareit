@@ -2,15 +2,12 @@ package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Arrays;
-import java.util.List;
 
 @RestControllerAdvice
 @Slf4j
@@ -45,7 +42,7 @@ public class ErrorHandler {
 
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	public ErrorResponse handler(final Exception  e) {
+	public ErrorResponse handler(final Exception e) {
 		log.error("При обработке запроса возникла непредвиденная ошибка: " + e);
 		ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
 		errorResponse.setStacktrace(Arrays.toString(e.getStackTrace()));
