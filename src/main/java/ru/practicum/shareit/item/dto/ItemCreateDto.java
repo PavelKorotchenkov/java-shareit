@@ -7,15 +7,12 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 @Getter
 @Setter
 @ToString
 @Builder
-public class ItemDto {
-	@Null
-	private Long id;
+public class ItemCreateDto {
 	@NotNull
 	@NotEmpty
 	private String name;
@@ -23,5 +20,5 @@ public class ItemDto {
 	private String description;
 	@NotNull
 	private Boolean available;
-	private Long ownerId;
+	private Long owner;
 }
