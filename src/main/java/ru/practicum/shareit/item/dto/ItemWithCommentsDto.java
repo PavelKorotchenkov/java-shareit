@@ -12,9 +12,9 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
 @Builder
-public class ItemWithBookingsDto {
+@ToString
+public class ItemWithCommentsDto {
 	private long id;
 	@NotEmpty
 	private String name;
@@ -25,5 +25,5 @@ public class ItemWithBookingsDto {
 	private Long ownerId;
 	private BookingShortDto lastBooking;
 	private BookingShortDto nextBooking;
-	private List<CommentResponseDto> comments;
+	List<CommentRequestDto> comments;
 }

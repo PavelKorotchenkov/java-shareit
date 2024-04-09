@@ -3,10 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
-import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -44,23 +41,38 @@ public class ItemController {
 	@GetMapping("/{id}")
 	public ItemWithBookingsDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
 									   @PathVariable Long id) {
-		return itemService.getById(id, userId);
+		log.info("Получен запрос на получение вещи, item_id: {}", id);
+		ItemWithBookingsDto byId = itemService.getById(id, userId);
+		log.info("Отработан запрос на получение вещи, item_id: {}", id);
+		return byId;
 	}
 
 	@GetMapping
-	public List<ItemWithBookingsDto> findByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-		log.info("Получен запрос на получение всех вещей владельца вещи: " + ownerId);
-		List<ItemWithBookingsDto> items = itemService.findByUserId(ownerId);
-		log.info("Отработан запрос на получение всех вещей владельца вещи: " + ownerId);
+	public List<ItemWithBookingsDto> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
+		log.info("Получен запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
+		List<ItemWithBookingsDto> items = itemService.getAllByUserId(ownerId);
+		log.info("Отработан запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
 		return items;
 	}
 
 	@GetMapping("/search")
 	public List<ItemDto> searchBy(@RequestHeader("X-Sharer-User-Id") long userId,
 								  @RequestParam String text) {
-		log.info("Получен запрос на поиск всех вещей по тексту: " + text);
+		log.info("Получен запрос на поиск всех вещей по тексту: {}", text);
 		List<ItemDto> items = itemService.searchBy(text, userId);
-		log.info("Отработан запрос на поиск всех вещей по тексту: " + text);
+		log.info("Отработан запрос на поиск всех вещей по тексту: {}", text);
 		return items;
+	}
+
+	@PostMapping("/{itemId}/comment")
+	public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
+										@PathVariable Long itemId,
+										@Valid @RequestBody CommentRequestDto commentRequestDto){
+		log.info("Получен запрос на добавление комментария для вещи: {}, {}", itemId, commentRequestDto);
+		commentRequestDto.setAuthorId(userId);
+		commentRequestDto.setItemId(itemId);
+		CommentResponseDto responseDto = itemService.addComment(commentRequestDto);
+		log.info("Отработан запрос на добавление комментария для вещи: {}, {}", itemId, responseDto);
+		return responseDto;
 	}
 }
