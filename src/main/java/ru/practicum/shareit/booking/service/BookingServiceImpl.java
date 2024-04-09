@@ -4,9 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.Status;
-import ru.practicum.shareit.booking.dto.BookingCreateDto;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repo.BookingRepository;
 import ru.practicum.shareit.exception.BookingDateException;
@@ -14,7 +14,7 @@ import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
-import ru.practicum.shareit.item.dto.ItemWithBookingsDto;
+import ru.practicum.shareit.item.dto.ItemWithFullInfoDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -35,18 +35,18 @@ public class BookingServiceImpl implements BookingService {
 	private final UserService userService;
 
 	@Override
-	public BookingDto add(BookingCreateDto bookingCreateDto) {
-		ItemWithBookingsDto itemDto = itemService.getById(bookingCreateDto.getItemId(), bookingCreateDto.getBookerId());
+	public BookingResponseDto add(BookingRequestDto bookingRequestDto) {
+		ItemWithFullInfoDto itemDto = itemService.getById(bookingRequestDto.getItemId(), bookingRequestDto.getBookerId());
 
-		if (bookingCreateDto.getBookerId() == itemDto.getOwnerId()) {
-			throw new NotFoundException("Вы не можете забранировать свою вещь.");
+		if (bookingRequestDto.getBookerId() == itemDto.getOwnerId()) {
+			throw new NotFoundException("Вы не можете забронировать свою вещь.");
 		}
 
 		if (!itemDto.getAvailable()) {
-			throw new NotAvailableException("Ошибка - вещь недоступна для бронирования.");
+			throw new NotAvailableException("Вещь недоступна для бронирования.");
 		}
 
-		Booking booking = BookingDtoMapper.toBooking(bookingCreateDto);
+		Booking booking = BookingDtoMapper.toBooking(bookingRequestDto);
 
 		if (booking.getStartDate() == null ||
 				booking.getEndDate() == null ||
@@ -54,26 +54,25 @@ public class BookingServiceImpl implements BookingService {
 				booking.getStartDate().isBefore(LocalDateTime.now()) ||
 				booking.getEndDate().isBefore(booking.getStartDate()) ||
 				booking.getStartDate().equals(booking.getEndDate())) {
-			throw new BookingDateException("Ошибка - выбрано некорректное время бронирования.");
+			throw new BookingDateException("Выбрано некорректное время бронирования.");
 		}
 
 		booking.setStatus(Status.WAITING);
 		booking.setItem(ItemDtoMapper.toItem(itemDto));
-		booking.setBooker(UserDtoMapper.toUser(userService.getById(bookingCreateDto.getBookerId())));
+		booking.setBooker(UserDtoMapper.toUser(userService.getById(bookingRequestDto.getBookerId())));
 
-		BookingDto bookingDto = BookingDtoMapper.toDto(bookingRepository.save(booking));
-		return bookingDto;
+		return BookingDtoMapper.toDto(bookingRepository.save(booking));
 	}
 
 	@Override
-	public BookingDto approve(long userId, long bookingId, boolean status) {
+	public BookingResponseDto approve(long userId, long bookingId, boolean status) {
 		UserDto userDto = userService.getById(userId);
 		Booking booking = getBooking(bookingId);
 		if (booking.getItem().getUser().getId() != userDto.getId()) {
-			throw new NotFoundException("У вас нет букинга с таким ID");
+			throw new NotFoundException("У вас нет такого бронирования.");
 		}
 		if (booking.getStatus().equals(Status.APPROVED)) {
-			throw new NotAvailableException("Вы не можете менять статус у подтвержденного букинга");
+			throw new NotAvailableException("Вы не можете менять статус у подтвержденного бронирования.");
 		}
 		Item item = ItemDtoMapper.toItem(itemService.getById(booking.getItem().getId(), userId));
 		if (!status) {
@@ -89,20 +88,19 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public BookingDto getInfoById(long userId, long bookingId) {
+	public BookingResponseDto getInfoById(long userId, long bookingId) {
 		UserDto userDto = userService.getById(userId);
-		BookingDto bookingDto = BookingDtoMapper.toDtoItemOwner(getBooking(bookingId));
-		if (bookingDto.getBooker().getId() != userDto.getId() && bookingDto.getItem().getOwnerId() != userDto.getId()) {
-			throw new NotFoundException("У вас нет букинга с таким ID");
+		BookingResponseDto bookingResponseDto = BookingDtoMapper.toDtoItemOwner(getBooking(bookingId));
+		if (bookingResponseDto.getBooker().getId() != userDto.getId() && bookingResponseDto.getItem().getOwnerId() != userDto.getId()) {
+			throw new NotFoundException("У вас нет такого бронирования");
 		}
-		return bookingDto;
+		return bookingResponseDto;
 	}
 
-
 	@Override
-	public List<BookingDto> getAllBookings(long booker, String state) {
+	public List<BookingResponseDto> getAllBookings(long booker, String state) {
 		UserDto userDto = userService.getById(booker);
-		List<BookingDto> result;
+		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
 		if (state.equals(State.ALL.name())) {
 			result = getCollect(bookingRepository.findByBookerIdOrderByStartDateDesc(booker));
@@ -122,9 +120,9 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingDto> getAllOwnerBookings(long booker, String state) {
+	public List<BookingResponseDto> getAllOwnerBookings(long booker, String state) {
 		UserDto userDto = userService.getById(booker);
-		List<BookingDto> result;
+		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
 		if (state.equals(State.ALL.name())) {
 			result = getCollect(bookingRepository.findByItemUserIdOrderByStartDateDesc(booker));
@@ -143,7 +141,7 @@ public class BookingServiceImpl implements BookingService {
 		return result;
 	}
 
-	private List<BookingDto> getCollect(List<Booking> bookingRepository) {
+	private List<BookingResponseDto> getCollect(List<Booking> bookingRepository) {
 		return bookingRepository
 				.stream()
 				.map(BookingDtoMapper::toDto)

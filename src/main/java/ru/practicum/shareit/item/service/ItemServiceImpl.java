@@ -67,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
-	public ItemWithBookingsDto getById(long itemId, long userId) {
+	public ItemWithFullInfoDto getById(long itemId, long userId) {
 		userService.getById(userId);
 		Item item = getItem(itemId);
 		Booking lastOpt = null;
@@ -76,19 +76,19 @@ public class ItemServiceImpl implements ItemService {
 			lastOpt = bookingRepository.findTop1ByItemUserIdAndStartDateBeforeAndStatusInOrderByEndDateDesc(userId, LocalDateTime.now(), List.of(Status.APPROVED));
 			nextOpt = bookingRepository.findTop1ByItemUserIdAndStartDateAfterAndStatusInOrderByStartDateAsc(userId, LocalDateTime.now(), List.of(Status.APPROVED));
 		}
-		ItemWithBookingsDto itemWithBookingsDto = makeItemWithBookingsDto(item, lastOpt, nextOpt);
+		ItemWithFullInfoDto itemWithFullInfoDto = makeItemWithBookingsDto(item, lastOpt, nextOpt);
 		List<Comment> comments = commentRepository.findAllByItemId(itemId);
 		List<CommentResponseDto> commentResponseDtos = comments
 				.stream()
 				.map(CommentDtoMapper::toResponseDto)
 				.collect(Collectors.toList());
-		itemWithBookingsDto.setComments(commentResponseDtos);
+		itemWithFullInfoDto.setComments(commentResponseDtos);
 
-		return itemWithBookingsDto;
+		return itemWithFullInfoDto;
 	}
 
 	@Override
-	public List<ItemWithBookingsDto> getAllByUserId(long userId) {
+	public List<ItemWithFullInfoDto> getAllByUserId(long userId) {
 		UserDto owner = userService.getById(userId);
 		Map<Long, Item> itemMap = itemRepository.findByUserId(owner.getId())
 				.stream()
@@ -151,17 +151,17 @@ public class ItemServiceImpl implements ItemService {
 		return optItem.orElseThrow(() -> new NotFoundException("Вещь с таким id не найдена: " + id));
 	}
 
-	private ItemWithBookingsDto makeItemWithBookingsDto(Item item, Booking lastBooking, Booking nextBooking) {
-		ItemWithBookingsDto itemWithBookingsDto = ItemDtoMapper.toItemWithBookingsDto(item);
+	private ItemWithFullInfoDto makeItemWithBookingsDto(Item item, Booking lastBooking, Booking nextBooking) {
+		ItemWithFullInfoDto itemWithFullInfoDto = ItemDtoMapper.toItemWithBookingsDto(item);
 		if (lastBooking != null) {
 			BookingShortDto last = BookingDtoMapper.toShortDto(lastBooking);
-			itemWithBookingsDto.setLastBooking(last);
+			itemWithFullInfoDto.setLastBooking(last);
 		}
 		if (nextBooking != null) {
 			BookingShortDto next = BookingDtoMapper.toShortDto(nextBooking);
-			itemWithBookingsDto.setNextBooking(next);
+			itemWithFullInfoDto.setNextBooking(next);
 		}
-		return itemWithBookingsDto;
+		return itemWithFullInfoDto;
 	}
 
 	private static boolean isOwner(long userId, Item item) {

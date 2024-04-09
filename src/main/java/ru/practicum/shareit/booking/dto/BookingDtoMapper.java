@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class BookingDtoMapper {
-	public static BookingDto toDto(Booking booking) {
-		return BookingDto.builder()
+	public static BookingResponseDto toDto(Booking booking) {
+		return BookingResponseDto.builder()
 				.id(booking.getId())
 				.start(DateTimeFormatter
 						.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -23,8 +23,8 @@ public class BookingDtoMapper {
 				.build();
 	}
 
-	public static BookingDto toDtoItemOwner(Booking booking) {
-		return BookingDto.builder()
+	public static BookingResponseDto toDtoItemOwner(Booking booking) {
+		return BookingResponseDto.builder()
 				.id(booking.getId())
 				.start(DateTimeFormatter
 						.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
@@ -45,22 +45,12 @@ public class BookingDtoMapper {
 				.build();
 	}
 
-	public static Booking toBooking(BookingDto bookingDto) {
+	public static Booking toBooking(BookingRequestDto bookingRequestDto) {
 		return Booking.builder()
-				.id(bookingDto.getId())
-				.startDate(bookingDto.getStart() == null ? null : LocalDateTime
-						.parse(bookingDto.getStart(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
-				.endDate(bookingDto.getEnd() == null ? null : LocalDateTime
-						.parse(bookingDto.getEnd(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
-				.build();
-	}
-
-	public static Booking toBooking(BookingCreateDto bookingCreateDto) {
-		return Booking.builder()
-				.startDate(bookingCreateDto.getStart() == null ? null : LocalDateTime
-						.parse(bookingCreateDto.getStart(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
-				.endDate(bookingCreateDto.getEnd() == null ? null : LocalDateTime
-						.parse(bookingCreateDto.getEnd(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
+				.startDate(bookingRequestDto.getStart() == null ? null : LocalDateTime
+						.parse(bookingRequestDto.getStart(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
+				.endDate(bookingRequestDto.getEnd() == null ? null : LocalDateTime
+						.parse(bookingRequestDto.getEnd(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")))
 				.build();
 	}
 }

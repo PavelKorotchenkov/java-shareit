@@ -12,7 +12,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 @Setter
 @Builder
 @ToString
-public class BookingDto {
+public class BookingResponseDto {
 	private long id;
 	private String start;
 	private String end;

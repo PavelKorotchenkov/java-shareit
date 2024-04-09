@@ -1,4 +1,4 @@
-drop table if exists items, users, bookings, comments;
+--drop table if exists items, users, bookings, comments;
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY UNIQUE NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS items (
     description varchar(1000),
     is_available boolean,
     user_id BIGINT,
-    CONSTRAINT fk_items_to_users FOREIGN KEY(user_id) REFERENCES users(id) ON delete CASCADE
+    CONSTRAINT fk_items_to_users FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS comments (
     text varchar(1000),
     item_id BIGINT,
     author_id BIGINT,
-    created timestamp without time zone,
+    created timestamp WITHOUT TIME ZONE,
     CONSTRAINT fk_comments_to_items FOREIGN KEY(item_id) REFERENCES items(id) ON DELETE CASCADE,
     CONSTRAINT fk_comments_to_users FOREIGN KEY(author_id) REFERENCES users(id) ON DELETE CASCADE
 );

@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @ToString
 @Builder
-public class ItemWithBookingsDto {
+public class ItemWithFullInfoDto {
 	private long id;
 	@NotEmpty
 	private String name;

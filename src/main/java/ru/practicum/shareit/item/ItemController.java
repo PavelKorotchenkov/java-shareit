@@ -39,18 +39,18 @@ public class ItemController {
 	}
 
 	@GetMapping("/{id}")
-	public ItemWithBookingsDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
+	public ItemWithFullInfoDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
 									   @PathVariable Long id) {
 		log.info("Получен запрос на получение вещи, item_id: {}", id);
-		ItemWithBookingsDto byId = itemService.getById(id, userId);
+		ItemWithFullInfoDto byId = itemService.getById(id, userId);
 		log.info("Отработан запрос на получение вещи, item_id: {}", id);
 		return byId;
 	}
 
 	@GetMapping
-	public List<ItemWithBookingsDto> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
+	public List<ItemWithFullInfoDto> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
 		log.info("Получен запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
-		List<ItemWithBookingsDto> items = itemService.getAllByUserId(ownerId);
+		List<ItemWithFullInfoDto> items = itemService.getAllByUserId(ownerId);
 		log.info("Отработан запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
 		return items;
 	}
@@ -66,8 +66,8 @@ public class ItemController {
 
 	@PostMapping("/{itemId}/comment")
 	public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
-										@PathVariable Long itemId,
-										@Valid @RequestBody CommentRequestDto commentRequestDto){
+										 @PathVariable Long itemId,
+										 @Valid @RequestBody CommentRequestDto commentRequestDto) {
 		log.info("Получен запрос на добавление комментария для вещи: {}, {}", itemId, commentRequestDto);
 		commentRequestDto.setAuthorId(userId);
 		commentRequestDto.setItemId(itemId);

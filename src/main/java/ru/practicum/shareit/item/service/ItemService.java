@@ -9,9 +9,9 @@ public interface ItemService {
 
 	ItemDto update(ItemUpdateDto itemUpdateDto);
 
-	ItemWithBookingsDto getById(long itemId, long userId);
+	ItemWithFullInfoDto getById(long itemId, long userId);
 
-	List<ItemWithBookingsDto> getAllByUserId(long ownerId);
+	List<ItemWithFullInfoDto> getAllByUserId(long ownerId);
 
 	List<ItemDto> searchBy(String text, long userId);
 
