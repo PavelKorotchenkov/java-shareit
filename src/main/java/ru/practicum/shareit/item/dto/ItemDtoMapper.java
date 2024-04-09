@@ -8,8 +8,23 @@ public class ItemDtoMapper {
 				.id(item.getId())
 				.name(item.getName())
 				.description(item.getDescription())
-				.available(item.getAvailable())
-				.ownerId(item.getOwner() != null ? item.getOwner().getId() : null)
+				.available(item.getIsAvailable())
+				.ownerId(item.getUser() != null ? item.getUser().getId() : null)
+				.build();
+	}
+
+	public static ItemDto toDtoIdName(Item item) {
+		return ItemDto.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.build();
+	}
+
+	public static ItemDto toDtoIdNameOwner(Item item) {
+		return ItemDto.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.ownerId(item.getUser().getId())
 				.build();
 	}
 
@@ -18,7 +33,16 @@ public class ItemDtoMapper {
 				.id(itemDto.getId())
 				.name(itemDto.getName())
 				.description(itemDto.getDescription())
-				.available(itemDto.getAvailable())
+				.isAvailable(itemDto.getAvailable())
+				.build();
+	}
+
+	public static Item toItem(ItemWithBookingsDto itemDto) {
+		return Item.builder()
+				.id(itemDto.getId())
+				.name(itemDto.getName())
+				.description(itemDto.getDescription())
+				.isAvailable(itemDto.getAvailable())
 				.build();
 	}
 
@@ -26,7 +50,29 @@ public class ItemDtoMapper {
 		return Item.builder()
 				.name(itemCreateDto.getName())
 				.description(itemCreateDto.getDescription())
-				.available(itemCreateDto.getAvailable())
+				.isAvailable(itemCreateDto.getAvailable())
 				.build();
 	}
+
+	public static ItemUpdateDto toItemUpdateDto(Item item) {
+		return ItemUpdateDto.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.description(item.getDescription())
+				.available(item.getIsAvailable())
+				.build();
+	}
+
+	public static ItemWithBookingsDto toItemWithBookingsDto(Item item) {
+		return ItemWithBookingsDto.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.description(item.getDescription())
+				.available(item.getIsAvailable())
+				.ownerId(item.getUser().getId())
+				.nextBooking(null)
+				.lastBooking(null)
+				.build();
+	}
+
 }

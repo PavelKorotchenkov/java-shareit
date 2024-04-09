@@ -14,12 +14,10 @@ import javax.validation.constraints.Null;
 @ToString
 @Builder
 public class ItemDto {
-	@Null
-	private Long id;
-	@NotNull
+	private long id;
 	@NotEmpty
 	private String name;
-	@NotNull
+	@NotEmpty
 	private String description;
 	@NotNull
 	private Boolean available;
