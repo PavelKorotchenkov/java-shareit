@@ -29,6 +29,7 @@ public class Item {
 	@Column(name = "is_available")
 	private Boolean isAvailable;
 
+	@JoinColumn(name = "author_id")
 	@ManyToOne(fetch = FetchType.LAZY)
 	@ToString.Exclude
 	private User user;
