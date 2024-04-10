@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public class Comment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "comment_id")
 	private long id;
 	private String text;
 	@JoinColumn(name = "item_id")

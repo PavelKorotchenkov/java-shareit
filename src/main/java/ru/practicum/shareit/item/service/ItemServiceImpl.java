@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
@@ -32,7 +33,8 @@ public class ItemServiceImpl implements ItemService {
 	private final BookingRepository bookingRepository;
 	private final CommentRepository commentRepository;
 	private final UserService userService;
-
+	private final Sort byStartDateAsc = Sort.by(Sort.Direction.ASC, "StartDate");
+	private final Sort byEndDateDesc = Sort.by(Sort.Direction.DESC, "EndDate");
 	@Override
 	public ItemDto add(ItemCreateDto itemCreateDto) {
 		User owner = UserDtoMapper.toUser(userService.getById(itemCreateDto.getOwnerId()));
@@ -73,17 +75,12 @@ public class ItemServiceImpl implements ItemService {
 		Booking lastOpt = null;
 		Booking nextOpt = null;
 		if (isOwner(userId, item)) {
-			lastOpt = bookingRepository.findTop1ByItemUserIdAndStartDateBeforeAndStatusInOrderByEndDateDesc(userId, LocalDateTime.now(), List.of(Status.APPROVED));
-			nextOpt = bookingRepository.findTop1ByItemUserIdAndStartDateAfterAndStatusInOrderByStartDateAsc(userId, LocalDateTime.now(), List.of(Status.APPROVED));
+			lastOpt = bookingRepository.findTop1ByItemUserIdAndStartDateBeforeAndStatusIn(userId, LocalDateTime.now(), List.of(Status.APPROVED), byEndDateDesc);
+			nextOpt = bookingRepository.findTop1ByItemUserIdAndStartDateAfterAndStatusIn(userId, LocalDateTime.now(), List.of(Status.APPROVED), byStartDateAsc);
 		}
 		ItemWithFullInfoDto itemWithFullInfoDto = makeItemWithBookingsDto(item, lastOpt, nextOpt);
-		List<Comment> comments = commentRepository.findAllByItemId(itemId);
-		List<CommentResponseDto> commentResponseDtos = comments
-				.stream()
-				.map(CommentDtoMapper::toResponseDto)
-				.collect(Collectors.toList());
-		itemWithFullInfoDto.setComments(commentResponseDtos);
-
+		List<CommentShort> comments = commentRepository.findAllByItemId(itemId);
+		itemWithFullInfoDto.setComments(comments);
 		return itemWithFullInfoDto;
 	}
 
@@ -93,10 +90,11 @@ public class ItemServiceImpl implements ItemService {
 		Map<Long, Item> itemMap = itemRepository.findByUserId(owner.getId())
 				.stream()
 				.collect(Collectors.toMap(Item::getId, Function.identity()));
-		Map<Item, List<Booking>> pastBookings = bookingRepository.findByItemIdAndStartDateBeforeOrderByEndDateDesc(itemMap.keySet(), LocalDateTime.now())
+		Set<Long> itemIds = itemMap.keySet();
+		Map<Item, List<Booking>> pastBookings = bookingRepository.findByItemIdAndStartDateBeforeOrderByEndDateDesc(itemIds, LocalDateTime.now())
 				.stream()
 				.collect(Collectors.groupingBy(Booking::getItem));
-		Map<Item, List<Booking>> nextBookings = bookingRepository.findByItemIdAndStartDateAfterOrderByStartDateAsc(itemMap.keySet(), LocalDateTime.now())
+		Map<Item, List<Booking>> nextBookings = bookingRepository.findByItemIdAndStartDateAfterOrderByStartDateAsc(itemIds, LocalDateTime.now())
 				.stream()
 				.collect(Collectors.groupingBy(Booking::getItem));
 

@@ -65,4 +65,15 @@ public class ItemDtoMapper {
 				.lastBooking(null)
 				.build();
 	}
+
+	public static ItemResponseDto toItemResponseDto(Item item) {
+		return ItemResponseDto.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.description(item.getDescription())
+				.available(item.getIsAvailable())
+				.nextBooking(null)
+				.lastBooking(null)
+				.build();
+	}
 }

@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.NotNull;
-
 @Getter
 @Setter
 @Builder
@@ -14,7 +12,6 @@ import javax.validation.constraints.NotNull;
 public class BookingRequestDto {
 	private String start;
 	private String end;
-	@NotNull
 	private long itemId;
 	private long bookerId;
 }

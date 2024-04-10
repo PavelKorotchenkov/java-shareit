@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking.repo;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,29 +13,29 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-	List<Booking> findByBookerIdOrderByStartDateDesc(long bookerId);
+	List<Booking> findByBookerId(long bookerId, Sort sort);
 
-	List<Booking> findByBookerIdAndStatusOrderByStartDateDesc(long bookerId, Status status);
+	List<Booking> findByBookerIdAndStatus(long bookerId, Status status, Sort sort);
 
-	List<Booking> findByBookerIdAndEndDateBeforeOrderByStartDateDesc(long bookerId, LocalDateTime date);
+	List<Booking> findByBookerIdAndEndDateBefore(long bookerId, LocalDateTime date, Sort sort);
 
-	List<Booking> findByBookerIdAndStartDateAfterOrderByStartDateDesc(long bookerId, LocalDateTime date);
+	List<Booking> findByBookerIdAndStartDateAfter(long bookerId, LocalDateTime date, Sort sort);
 
-	List<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(long bookerId, LocalDateTime startDate, LocalDateTime endDate);
+	List<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfter(long bookerId, LocalDateTime startDate, LocalDateTime endDate, Sort sort);
 
-	List<Booking> findByItemUserIdOrderByStartDateDesc(long id);
+	List<Booking> findByItemUserId(long id, Sort sort);
 
-	List<Booking> findByItemUserIdAndStatusOrderByStartDateDesc(long id, Status status);
+	List<Booking> findByItemUserIdAndStatus(long id, Status status, Sort sort);
 
-	List<Booking> findByItemUserIdAndEndDateBeforeOrderByEndDateDesc(long id, LocalDateTime date);
+	List<Booking> findByItemUserIdAndEndDateBefore(long id, LocalDateTime date, Sort sort);
 
-	List<Booking> findByItemUserIdAndStartDateAfterOrderByStartDateDesc(long id, LocalDateTime date);
+	List<Booking> findByItemUserIdAndStartDateAfter(long id, LocalDateTime date, Sort sort);
 
-	List<Booking> findByItemUserIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(long id, LocalDateTime startDate, LocalDateTime endDate);
+	List<Booking> findByItemUserIdAndStartDateBeforeAndEndDateAfter(long id, LocalDateTime startDate, LocalDateTime endDate, Sort sort);
 
-	Booking findTop1ByItemUserIdAndStartDateBeforeAndStatusInOrderByEndDateDesc(long id, LocalDateTime date, List<Status> status);
+	Booking findTop1ByItemUserIdAndStartDateBeforeAndStatusIn(long id, LocalDateTime date, List<Status> status, Sort sort);
 
-	Booking findTop1ByItemUserIdAndStartDateAfterAndStatusInOrderByStartDateAsc(long id, LocalDateTime date, List<Status> status);
+	Booking findTop1ByItemUserIdAndStartDateAfterAndStatusIn(long id, LocalDateTime date, List<Status> status, Sort sort);
 
 	@Query("SELECT b FROM Booking b WHERE b.item.id IN :id AND b.endDate < :date ORDER BY b.endDate DESC")
 	List<Booking> findByItemIdAndStartDateBeforeOrderByEndDateDesc(@Param("id") Set<Long> id, @Param("date") LocalDateTime date);

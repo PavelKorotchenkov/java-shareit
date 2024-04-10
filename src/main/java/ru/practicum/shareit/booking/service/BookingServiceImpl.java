@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.State;
 import ru.practicum.shareit.booking.Status;
@@ -33,6 +34,9 @@ public class BookingServiceImpl implements BookingService {
 	private final BookingRepository bookingRepository;
 	private final ItemService itemService;
 	private final UserService userService;
+
+	private final Sort byStartDateDesc = Sort.by(Sort.Direction.DESC, "StartDate");
+	private final Sort byEndDateDesc = Sort.by(Sort.Direction.DESC, "EndDate");
 
 	@Override
 	public BookingResponseDto add(BookingRequestDto bookingRequestDto) {
@@ -98,44 +102,41 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingResponseDto> getAllBookings(long booker, String state) {
+	public List<BookingResponseDto> getAllBookings(long booker, State state) {
 		UserDto userDto = userService.getById(booker);
 		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
-		if (state.equals(State.ALL.name())) {
-			result = getCollect(bookingRepository.findByBookerIdOrderByStartDateDesc(booker));
-		} else if (state.equals(State.WAITING.name()) || state.equals(State.REJECTED.name())) {
-			result = getCollect(bookingRepository.findByBookerIdAndStatusOrderByStartDateDesc(booker, Status.valueOf(state)));
-		} else if (state.equals(State.PAST.name())) {
-			result = getCollect(bookingRepository.findByBookerIdAndEndDateBeforeOrderByStartDateDesc(booker, date));
-		} else if (state.equals(State.CURRENT.name())) {
-			result = getCollect(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(booker, date, date));
-		} else if (state.equals(State.FUTURE.name())) {
-			result = getCollect(bookingRepository.findByBookerIdAndStartDateAfterOrderByStartDateDesc(booker, date));
+
+		if (state.equals(State.ALL)) {
+			result = getCollect(bookingRepository.findByBookerId(booker, byStartDateDesc));
+		} else if (state.equals(State.PAST)) {
+			result = getCollect(bookingRepository.findByBookerIdAndEndDateBefore(booker, date, byStartDateDesc));
+		} else if (state.equals(State.CURRENT)) {
+			result = getCollect(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfter(booker, date, date, byStartDateDesc));
+		} else if (state.equals(State.FUTURE)) {
+			result = getCollect(bookingRepository.findByBookerIdAndStartDateAfter(booker, date, byStartDateDesc));
 		} else {
-			throw new UnsupportedOperationException("Unknown state: UNSUPPORTED_STATUS");
+			result = getCollect(bookingRepository.findByBookerIdAndStatus(booker, Status.valueOf(state.name()), byStartDateDesc));
 		}
 
 		return result;
 	}
 
 	@Override
-	public List<BookingResponseDto> getAllOwnerBookings(long booker, String state) {
+	public List<BookingResponseDto> getAllOwnerBookings(long booker, State state) {
 		UserDto userDto = userService.getById(booker);
 		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
-		if (state.equals(State.ALL.name())) {
-			result = getCollect(bookingRepository.findByItemUserIdOrderByStartDateDesc(booker));
-		} else if (state.equals(State.WAITING.name()) || state.equals(State.REJECTED.name())) {
-			result = getCollect(bookingRepository.findByItemUserIdAndStatusOrderByStartDateDesc(booker, Status.valueOf(state)));
-		} else if (state.equals(State.PAST.name())) {
-			result = getCollect(bookingRepository.findByItemUserIdAndEndDateBeforeOrderByEndDateDesc(booker, date));
-		} else if (state.equals(State.CURRENT.name())) {
-			result = getCollect(bookingRepository.findByItemUserIdAndStartDateBeforeAndEndDateAfterOrderByStartDateDesc(booker, date, date));
-		} else if (state.equals(State.FUTURE.name())) {
-			result = getCollect(bookingRepository.findByItemUserIdAndStartDateAfterOrderByStartDateDesc(booker, date));
+		if (state.equals(State.ALL)) {
+			result = getCollect(bookingRepository.findByItemUserId(booker, byStartDateDesc));
+		} else if (state.equals(State.PAST)) {
+			result = getCollect(bookingRepository.findByItemUserIdAndEndDateBefore(booker, date, byEndDateDesc));
+		} else if (state.equals(State.CURRENT)) {
+			result = getCollect(bookingRepository.findByItemUserIdAndStartDateBeforeAndEndDateAfter(booker, date, date, byStartDateDesc));
+		} else if (state.equals(State.FUTURE)) {
+			result = getCollect(bookingRepository.findByItemUserIdAndStartDateAfter(booker, date, byStartDateDesc));
 		} else {
-			throw new UnsupportedOperationException("Unknown state: UNSUPPORTED_STATUS");
+			result = getCollect(bookingRepository.findByItemUserIdAndStatus(booker, Status.valueOf(state.name()), byStartDateDesc));
 		}
 
 		return result;

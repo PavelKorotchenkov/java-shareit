@@ -47,11 +47,17 @@ public class ErrorHandler {
 		return new ErrorResponse(e.getMessage());
 	}
 
-
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ErrorResponse handler(final MethodArgumentNotValidException e) {
-		log.info("Ошибка - передан некорректный параметр.");
+		log.info("Ошибка - передан некорректный параметр: {}", e.getMessage());
+		return new ErrorResponse(e.getMessage());
+	}
+
+	@ExceptionHandler(InvalidStateException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handler(final InvalidStateException e) {
+		log.info("Ошибка - передан некорректный статус: {}", e.getMessage());
 		return new ErrorResponse(e.getMessage());
 	}
 
@@ -63,4 +69,5 @@ public class ErrorHandler {
 		errorResponse.setStacktrace(Arrays.toString(e.getStackTrace()));
 		return errorResponse;
 	}
+
 }

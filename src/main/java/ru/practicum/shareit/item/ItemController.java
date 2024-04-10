@@ -14,10 +14,12 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
+
+	public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 	private final ItemService itemService;
 
 	@PostMapping
-	public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
+	public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long ownerId,
 						   @Valid @RequestBody ItemCreateDto itemCreateDto) {
 		log.info("Получен запрос на добавление вещи: {}", itemCreateDto);
 		itemCreateDto.setOwnerId(ownerId);
@@ -27,7 +29,7 @@ public class ItemController {
 	}
 
 	@PatchMapping("/{id}")
-	public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
+	public ItemDto updateItem(@RequestHeader(X_SHARER_USER_ID) long ownerId,
 							  @PathVariable Long id,
 							  @RequestBody ItemUpdateDto itemUpdateDto) {
 		log.info("Получен запрос на обновление вещи: {}", itemUpdateDto);
@@ -39,7 +41,7 @@ public class ItemController {
 	}
 
 	@GetMapping("/{id}")
-	public ItemWithFullInfoDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
+	public ItemWithFullInfoDto getItem(@RequestHeader(X_SHARER_USER_ID) long userId,
 									   @PathVariable Long id) {
 		log.info("Получен запрос на получение вещи, item_id: {}", id);
 		ItemWithFullInfoDto byId = itemService.getById(id, userId);
@@ -48,7 +50,7 @@ public class ItemController {
 	}
 
 	@GetMapping
-	public List<ItemWithFullInfoDto> findAllByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
+	public List<ItemWithFullInfoDto> findAllByOwnerId(@RequestHeader(X_SHARER_USER_ID) long ownerId) {
 		log.info("Получен запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
 		List<ItemWithFullInfoDto> items = itemService.getAllByUserId(ownerId);
 		log.info("Отработан запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
@@ -56,7 +58,7 @@ public class ItemController {
 	}
 
 	@GetMapping("/search")
-	public List<ItemDto> searchBy(@RequestHeader("X-Sharer-User-Id") long userId,
+	public List<ItemDto> searchBy(@RequestHeader(X_SHARER_USER_ID) long userId,
 								  @RequestParam String text) {
 		log.info("Получен запрос на поиск всех вещей по тексту: {}", text);
 		List<ItemDto> items = itemService.searchBy(text, userId);
@@ -65,7 +67,7 @@ public class ItemController {
 	}
 
 	@PostMapping("/{itemId}/comment")
-	public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") long userId,
+	public CommentResponseDto addComment(@RequestHeader(X_SHARER_USER_ID) long userId,
 										 @PathVariable Long itemId,
 										 @Valid @RequestBody CommentRequestDto commentRequestDto) {
 		log.info("Получен запрос на добавление комментария для вещи: {}, {}", itemId, commentRequestDto);
