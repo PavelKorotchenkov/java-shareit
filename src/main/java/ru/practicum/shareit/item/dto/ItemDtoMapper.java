@@ -60,18 +60,6 @@ public class ItemDtoMapper {
 				.name(item.getName())
 				.description(item.getDescription())
 				.available(item.getIsAvailable())
-				.ownerId(item.getUser().getId())
-				.nextBooking(null)
-				.lastBooking(null)
-				.build();
-	}
-
-	public static ItemResponseDto toItemResponseDto(Item item) {
-		return ItemResponseDto.builder()
-				.id(item.getId())
-				.name(item.getName())
-				.description(item.getDescription())
-				.available(item.getIsAvailable())
 				.nextBooking(null)
 				.lastBooking(null)
 				.build();

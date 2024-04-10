@@ -22,7 +22,6 @@ public class ItemWithFullInfoDto {
 	private String description;
 	@NotNull
 	private Boolean available;
-	private Long ownerId;
 	private BookingShortDto lastBooking;
 	private BookingShortDto nextBooking;
 	private List<CommentShort> comments;

@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Arrays;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 @RestControllerAdvice
 @Slf4j
@@ -66,7 +67,9 @@ public class ErrorHandler {
 	public ErrorResponse handler(final Exception e) {
 		log.error("При обработке запроса возникла непредвиденная ошибка: ", e);
 		ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
-		errorResponse.setStacktrace(Arrays.toString(e.getStackTrace()));
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		errorResponse.setStacktrace(sw.toString());
 		return errorResponse;
 	}
 

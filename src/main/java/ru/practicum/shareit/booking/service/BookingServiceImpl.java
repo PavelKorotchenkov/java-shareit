@@ -15,8 +15,8 @@ import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
 import ru.practicum.shareit.item.dto.ItemUpdateDto;
-import ru.practicum.shareit.item.dto.ItemWithFullInfoDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repo.ItemRepository;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 public class BookingServiceImpl implements BookingService {
 
 	private final BookingRepository bookingRepository;
+	private final ItemRepository itemRepository;
 	private final ItemService itemService;
 	private final UserService userService;
 
@@ -40,13 +41,12 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public BookingResponseDto add(BookingRequestDto bookingRequestDto) {
-		ItemWithFullInfoDto itemDto = itemService.getById(bookingRequestDto.getItemId(), bookingRequestDto.getBookerId());
-
-		if (bookingRequestDto.getBookerId() == itemDto.getOwnerId()) {
+		Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена."));
+		if (bookingRequestDto.getBookerId() == item.getUser().getId()) {
 			throw new NotFoundException("Вы не можете забронировать свою вещь.");
 		}
 
-		if (!itemDto.getAvailable()) {
+		if (!item.getIsAvailable()) {
 			throw new NotAvailableException("Вещь недоступна для бронирования.");
 		}
 
@@ -62,7 +62,7 @@ public class BookingServiceImpl implements BookingService {
 		}
 
 		booking.setStatus(Status.WAITING);
-		booking.setItem(ItemDtoMapper.toItem(itemDto));
+		booking.setItem(item);
 		booking.setBooker(UserDtoMapper.toUser(userService.getById(bookingRequestDto.getBookerId())));
 
 		return BookingDtoMapper.toDto(bookingRepository.save(booking));
