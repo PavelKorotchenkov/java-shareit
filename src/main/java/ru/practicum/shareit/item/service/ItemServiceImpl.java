@@ -35,6 +35,7 @@ public class ItemServiceImpl implements ItemService {
 	private final UserService userService;
 	private final Sort byStartDateAsc = Sort.by(Sort.Direction.ASC, "StartDate");
 	private final Sort byEndDateDesc = Sort.by(Sort.Direction.DESC, "EndDate");
+
 	@Override
 	public ItemDto add(ItemCreateDto itemCreateDto) {
 		User owner = UserDtoMapper.toUser(userService.getById(itemCreateDto.getOwnerId()));
