@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
-@ToString
+@ToString(of = "id")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,7 +30,6 @@ public class Item {
 	private Boolean isAvailable;
 
 	@JoinColumn(name = "user_id")
-	@ManyToOne(fetch = FetchType.LAZY)
-	@ToString.Exclude
+	@ManyToOne(fetch = FetchType.EAGER)
 	private User user;
 }

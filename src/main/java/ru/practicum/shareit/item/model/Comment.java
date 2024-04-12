@@ -22,10 +22,10 @@ public class Comment {
 	private long id;
 	private String text;
 	@JoinColumn(name = "item_id")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Item item;
 	@JoinColumn(name = "author_id")
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private User author;
 	private LocalDateTime created;
 }
