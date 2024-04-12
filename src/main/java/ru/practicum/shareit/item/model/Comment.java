@@ -4,32 +4,28 @@ import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString(of = "id")
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 @Entity
-@Table(name = "items")
-public class Item {
+@Table(name = "comments")
+public class Comment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "item_id")
+	@Column(name = "comment_id")
 	private long id;
-
-	@NotEmpty
-	private String name;
-
-	private String description;
-
-	@Column(name = "is_available")
-	private Boolean isAvailable;
-
-	@JoinColumn(name = "user_id")
+	private String text;
+	@JoinColumn(name = "item_id")
 	@ManyToOne(fetch = FetchType.EAGER)
-	private User user;
+	private Item item;
+	@JoinColumn(name = "author_id")
+	@ManyToOne(fetch = FetchType.EAGER)
+	private User author;
+	private LocalDateTime created;
 }

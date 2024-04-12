@@ -3,9 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemCreateDto;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemUpdateDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
@@ -16,48 +14,67 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
+
+	public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
 	private final ItemService itemService;
 
 	@PostMapping
-	public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
+	public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long ownerId,
 						   @Valid @RequestBody ItemCreateDto itemCreateDto) {
 		log.info("Получен запрос на добавление вещи: {}", itemCreateDto);
-		ItemDto savedItemDto = itemService.add(itemCreateDto, ownerId);
+		itemCreateDto.setOwnerId(ownerId);
+		ItemDto savedItemDto = itemService.add(itemCreateDto);
 		log.info("Отработан запрос на добавление вещи: {}", savedItemDto);
 		return savedItemDto;
 	}
 
 	@PatchMapping("/{id}")
-	public ItemDto updateItem(@RequestHeader("X-Sharer-User-Id") long ownerId,
+	public ItemDto updateItem(@RequestHeader(X_SHARER_USER_ID) long ownerId,
 							  @PathVariable Long id,
 							  @RequestBody ItemUpdateDto itemUpdateDto) {
 		log.info("Получен запрос на обновление вещи: {}", itemUpdateDto);
 		itemUpdateDto.setId(id);
-		ItemDto updatedItemDto = itemService.update(itemUpdateDto, ownerId);
+		itemUpdateDto.setOwnerId(ownerId);
+		ItemDto updatedItemDto = itemService.update(itemUpdateDto);
 		log.info("Отработан запрос на обновление вещи: {}", updatedItemDto);
 		return updatedItemDto;
 	}
 
 	@GetMapping("/{id}")
-	public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") long userId,
-						   @PathVariable Long id) {
-		return itemService.getById(id, userId);
+	public ItemWithFullInfoDto getItem(@RequestHeader(X_SHARER_USER_ID) long userId,
+									   @PathVariable Long id) {
+		log.info("Получен запрос на получение вещи, item_id: {}", id);
+		ItemWithFullInfoDto byId = itemService.getById(id, userId);
+		log.info("Отработан запрос на получение вещи, item_id: {}", id);
+		return byId;
 	}
 
 	@GetMapping
-	public List<ItemDto> findByOwnerId(@RequestHeader("X-Sharer-User-Id") long ownerId) {
-		log.info("Получен запрос на получение всех вещей владельца вещи: " + ownerId);
-		List<ItemDto> items = itemService.findByOwnerId(ownerId);
-		log.info("Отработан запрос на получение всех вещей владельца вещи: " + ownerId);
+	public List<ItemWithFullInfoDto> findAllByOwnerId(@RequestHeader(X_SHARER_USER_ID) long ownerId) {
+		log.info("Получен запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
+		List<ItemWithFullInfoDto> items = itemService.getAllByUserId(ownerId);
+		log.info("Отработан запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
 		return items;
 	}
 
 	@GetMapping("/search")
-	public List<ItemDto> searchBy(@RequestHeader("X-Sharer-User-Id") long userId,
+	public List<ItemDto> searchBy(@RequestHeader(X_SHARER_USER_ID) long userId,
 								  @RequestParam String text) {
-		log.info("Получен запрос на поиск всех вещей по тексту: " + text);
-		List<ItemDto> items = itemService.searchBy(text.toLowerCase(), userId);
-		log.info("Отработан запрос на поиск всех вещей по тексту: " + text);
+		log.info("Получен запрос на поиск всех вещей по тексту: {}", text);
+		List<ItemDto> items = itemService.searchBy(text, userId);
+		log.info("Отработан запрос на поиск всех вещей по тексту: {}", text);
 		return items;
+	}
+
+	@PostMapping("/{itemId}/comment")
+	public CommentResponseDto addComment(@RequestHeader(X_SHARER_USER_ID) long userId,
+										 @PathVariable Long itemId,
+										 @Valid @RequestBody CommentRequestDto commentRequestDto) {
+		log.info("Получен запрос на добавление комментария для вещи: {}, {}", itemId, commentRequestDto);
+		commentRequestDto.setAuthorId(userId);
+		commentRequestDto.setItemId(itemId);
+		CommentResponseDto responseDto = itemService.addComment(commentRequestDto);
+		log.info("Отработан запрос на добавление комментария для вещи: {}, {}", itemId, responseDto);
+		return responseDto;
 	}
 }

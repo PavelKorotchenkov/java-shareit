@@ -11,6 +11,12 @@ public class UserDtoMapper {
 				.build();
 	}
 
+	public static UserDto toDtoId(User user) {
+		return UserDto.builder()
+				.id(user.getId())
+				.build();
+	}
+
 	public static User toUser(UserDto userDto) {
 		return User.builder()
 				.id(userDto.getId())

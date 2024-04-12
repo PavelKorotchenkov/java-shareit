@@ -9,10 +9,9 @@ import lombok.ToString;
 @Setter
 @Builder
 @ToString
-public class ItemUpdateDto {
+public class CommentResponseDto {
 	private long id;
-	private String name;
-	private String description;
-	private Boolean available;
-	private long ownerId;
+	private String text;
+	private String authorName;
+	private String created;
 }

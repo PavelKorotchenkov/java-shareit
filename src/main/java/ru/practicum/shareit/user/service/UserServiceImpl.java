@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<UserDto> getAll() {
-		return userRepository.getAll()
+		return userRepository.findAll()
 				.stream()
 				.map(UserDtoMapper::toDto)
 				.collect(Collectors.toList());
@@ -36,12 +36,12 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto getById(Long id) {
-		return UserDtoMapper.toDto(checkUser(id));
+		return UserDtoMapper.toDto(getUser(id));
 	}
 
 	@Override
 	public UserDto update(Long id, UserUpdateDto userUpdateDto) {
-		UserDto currentUserDto = UserDtoMapper.toDto(checkUser(id));
+		UserDto currentUserDto = UserDtoMapper.toDto(getUser(id));
 		User userUpdate = UserDtoMapper.toUserUpdate(userUpdateDto);
 		userUpdate.setId(id);
 
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 			userUpdate.setEmail(currentUserDto.getEmail());
 		}
 
-		return UserDtoMapper.toDto(userRepository.update(userUpdate));
+		return UserDtoMapper.toDto(userRepository.save(userUpdate));
 	}
 
 	@Override
@@ -61,8 +61,8 @@ public class UserServiceImpl implements UserService {
 		userRepository.deleteById(id);
 	}
 
-	private User checkUser(Long id) {
-		Optional<User> optUser = userRepository.getById(id);
+	private User getUser(Long id) {
+		Optional<User> optUser = userRepository.findById(id);
 		return optUser.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id));
 	}
 }
