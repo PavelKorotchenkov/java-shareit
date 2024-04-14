@@ -17,4 +17,7 @@ public interface BookingService {
 
 	List<BookingResponseDto> getAllOwnerBookings(long userId, State state);
 
+	List<BookingResponseDto> getAllOwnerBookingsPageable(long userId, Integer from, Integer size);
+
+	List<BookingResponseDto> getAllBookingsPageable(long userId, Integer from, Integer size);
 }

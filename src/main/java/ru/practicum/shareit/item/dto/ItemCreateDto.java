@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -20,4 +21,5 @@ public class ItemCreateDto {
 	@NotNull
 	private Boolean available;
 	private long ownerId;
+	private long requestId;
 }

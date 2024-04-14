@@ -25,4 +25,5 @@ public class ItemWithFullInfoDto {
 	private BookingShortDto lastBooking;
 	private BookingShortDto nextBooking;
 	private List<CommentShort> comments;
+	private Long requestId;
 }

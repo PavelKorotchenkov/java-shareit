@@ -52,31 +52,51 @@ public class BookingController {
 
 	@GetMapping
 	public List<BookingResponseDto> getAllBookings(@RequestHeader(X_SHARER_USER_ID) long userId,
-												   @RequestParam(defaultValue = "ALL") String state) {
-		log.info("Получен запрос на получение всех бронирований пользователя: {}, {}", userId, state);
-		State validState;
-		try {
-			validState = State.valueOf(state);
-		} catch (IllegalArgumentException e) {
-			throw new InvalidStateException("Unknown state: UNSUPPORTED_STATUS");
+												   @RequestParam(defaultValue = "ALL") String state,
+												   @RequestParam(required = false) Integer from,
+												   @RequestParam(required = false) Integer size) {
+		log.info("Получен запрос на получение всех бронирований пользователя: user id: {}, state: {}, from: {}, size: {}", userId, state, from, size);
+		State validState = getState(state);
+		List<BookingResponseDto> allBookings;
+		if (from == null || size == null) {
+			allBookings = bookingService.getAllBookings(userId, validState);
+		} else if (from < 0) {
+			throw new IllegalArgumentException("Параметр 'from' должен быть больше нуля.");
+		} else {
+			allBookings = bookingService.getAllBookingsPageable(userId, from, size);
 		}
-		List<BookingResponseDto> allBookings = bookingService.getAllBookings(userId, validState);
-		log.info("Обработан запрос на получение всех бронирований пользователя: {}, {}", userId, state);
+
+		log.info("Обработан запрос на получение всех бронирований пользователя: {}", allBookings);
 		return allBookings;
 	}
 
 	@GetMapping("/owner")
 	public List<BookingResponseDto> getAllOwnerBookings(@RequestHeader(X_SHARER_USER_ID) long userId,
-														@RequestParam(defaultValue = "ALL") String state) {
-		log.info("Получен запрос на получение всех бронирований вещей владельца: {}, {}", userId, state);
+														@RequestParam(defaultValue = "ALL") String state,
+														@RequestParam(required = false) Integer from,
+														@RequestParam(required = false) Integer size) {
+		log.info("Получен запрос на получение всех бронирований вещей владельца: {}, {}, from: {}, size: {}", userId, state, from, size);
+		State validState = getState(state);
+		List<BookingResponseDto> allBookings;
+		if (from == null || size == null) {
+			allBookings = bookingService.getAllOwnerBookings(userId, validState);
+		} else if (from < 0) {
+			throw new IllegalArgumentException("Параметр 'from' должен быть больше нуля.");
+		} else {
+			allBookings = bookingService.getAllOwnerBookingsPageable(userId, from, size);
+		}
+
+		log.info("Обработан запрос на получение всех бронирований вещей владельца: {}, {}", userId, validState);
+		return allBookings;
+	}
+
+	private State getState(String state) {
 		State validState;
 		try {
 			validState = State.valueOf(state);
 		} catch (IllegalArgumentException e) {
 			throw new InvalidStateException("Unknown state: UNSUPPORTED_STATUS");
 		}
-		List<BookingResponseDto> allBookings = bookingService.getAllOwnerBookings(userId, validState);
-		log.info("Обработан запрос на получение всех бронирований вещей владельца: {}, {}", userId, validState);
-		return allBookings;
+		return validState;
 	}
 }

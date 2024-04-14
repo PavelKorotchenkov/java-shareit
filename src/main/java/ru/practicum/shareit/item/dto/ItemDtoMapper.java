@@ -10,6 +10,7 @@ public class ItemDtoMapper {
 				.description(item.getDescription())
 				.available(item.getIsAvailable())
 				.ownerId(item.getUser() != null ? item.getUser().getId() : null)
+				.requestId(item.getRequest() == null? null : item.getRequest().getId())
 				.build();
 	}
 
@@ -25,6 +26,7 @@ public class ItemDtoMapper {
 				.id(item.getId())
 				.name(item.getName())
 				.ownerId(item.getUser().getId())
+				.requestId(item.getRequest() == null ? null : item.getRequest().getId())
 				.build();
 	}
 
@@ -62,6 +64,17 @@ public class ItemDtoMapper {
 				.available(item.getIsAvailable())
 				.nextBooking(null)
 				.lastBooking(null)
+				.requestId(item.getRequest() == null? null : item.getRequest().getId())
+				.build();
+	}
+
+	public static ItemForRequestDto toItemForRequestDto(Item item) {
+		return ItemForRequestDto.builder()
+				.id(item.getId())
+				.name(item.getName())
+				.description(item.getDescription())
+				.available(item.getIsAvailable())
+				.requestId(item.getRequest().getId())
 				.build();
 	}
 }

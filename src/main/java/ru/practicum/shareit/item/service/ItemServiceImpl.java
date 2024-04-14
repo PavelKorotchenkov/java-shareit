@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
+import ru.practicum.shareit.request.repo.RequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
 import ru.practicum.shareit.user.model.User;
@@ -33,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
 	private final BookingRepository bookingRepository;
 	private final CommentRepository commentRepository;
 	private final UserService userService;
+	private final RequestRepository requestRepository;
 	private final Sort byStartDateAsc = Sort.by(Sort.Direction.ASC, "StartDate");
 	private final Sort byEndDateDesc = Sort.by(Sort.Direction.DESC, "EndDate");
 
@@ -41,6 +43,7 @@ public class ItemServiceImpl implements ItemService {
 		User owner = UserDtoMapper.toUser(userService.getById(itemCreateDto.getOwnerId()));
 		Item item = ItemDtoMapper.toItemCreate(itemCreateDto);
 		item.setUser(owner);
+		item.setRequest(requestRepository.findById(itemCreateDto.getRequestId()));
 		return ItemDtoMapper.toDto(itemRepository.save(item));
 	}
 

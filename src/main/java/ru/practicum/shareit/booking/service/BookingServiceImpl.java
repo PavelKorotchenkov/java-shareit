@@ -1,6 +1,7 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.State;
@@ -140,6 +141,22 @@ public class BookingServiceImpl implements BookingService {
 		}
 
 		return result;
+	}
+
+	@Override
+	public List<BookingResponseDto> getAllBookingsPageable(long userId, Integer from, Integer size) {
+		UserDto userDto = userService.getById(userId);
+		PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size).withSort(byStartDateDesc);
+
+		return getCollect(bookingRepository.findByBookerId(userId, page).getContent());
+	}
+
+	@Override
+	public List<BookingResponseDto> getAllOwnerBookingsPageable(long userId, Integer from, Integer size) {
+		UserDto userDto = userService.getById(userId);
+		PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size).withSort(byStartDateDesc);
+
+		return getCollect(bookingRepository.findByItemUserId(userId, page).getContent());
 	}
 
 	private List<BookingResponseDto> getCollect(List<Booking> bookingRepository) {

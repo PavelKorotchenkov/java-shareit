@@ -8,11 +8,11 @@ import lombok.ToString;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
 @ToString
 @Builder
-public class ItemDto {
+@Getter
+@Setter
+public class ItemForRequestDto {
 	private long id;
 	@NotEmpty
 	private String name;
@@ -20,6 +20,5 @@ public class ItemDto {
 	private String description;
 	@NotNull
 	private Boolean available;
-	private Long ownerId;
 	private Long requestId;
 }

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.booking.repo;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -44,4 +44,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 	List<Booking> findByItemIdAndStartDateAfterOrderByStartDateAsc(@Param("id") Set<Long> id, @Param("date") LocalDateTime date);
 
 	Optional<Booking> findTop1ByItemIdAndBookerIdAndStatusAndEndDateBefore(long itemId, long bookerId, Status status, LocalDateTime date);
+
+	Page<Booking> findByItemUserId(long userId, Pageable pageable);
+
+	Page<Booking> findByBookerId(long bookerId, Pageable pageable);
 }
