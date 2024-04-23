@@ -256,6 +256,19 @@ class BookingControllerTestIT {
 
 	@SneakyThrows
 	@Test
+	void getAllBookings_whenNotValidState_thenThrowInvalidStateException() {
+		int from = 0;
+		int size = 1;
+		mockMvc.perform(get("/bookings")
+						.header(X_SHARER_USER_ID, 1L)
+						.param("state", "INVALID")
+						.param("from", String.valueOf(from))
+						.param("size", String.valueOf(size)))
+				.andExpect(status().isBadRequest());
+	}
+
+	@SneakyThrows
+	@Test
 	void getAllOwnerBookings() {
 		int from = 0;
 		int size = 1;
