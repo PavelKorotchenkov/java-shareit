@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.repo;
 
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,39 +15,36 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-	List<Booking> findByBookerId(long bookerId, Sort sort);
+	Page<Booking> findByBookerId(long bookerId, Pageable pageable);
 
-	List<Booking> findByBookerIdAndStatus(long bookerId, Status status, Sort sort);
+	Page<Booking> findByBookerIdAndStatus(long bookerId, Status status, Pageable pageable);
 
-	List<Booking> findByBookerIdAndEndDateBefore(long bookerId, LocalDateTime date, Sort sort);
+	Page<Booking> findByBookerIdAndEndDateBefore(long bookerId, LocalDateTime date, Pageable pageable);
 
-	List<Booking> findByBookerIdAndStartDateAfter(long bookerId, LocalDateTime date, Sort sort);
+	Page<Booking> findByBookerIdAndStartDateAfter(long bookerId, LocalDateTime date, Pageable pageable);
 
-	List<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfter(long bookerId, LocalDateTime startDate, LocalDateTime endDate, Sort sort);
+	Page<Booking> findByBookerIdAndStartDateBeforeAndEndDateAfter(long bookerId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
-	List<Booking> findByItemUserId(long id, Sort sort);
+	Page<Booking> findByItemUserIdAndStatus(long id, Status status, Pageable pageable);
 
-	List<Booking> findByItemUserIdAndStatus(long id, Status status, Sort sort);
+	Page<Booking> findByItemUserIdAndEndDateBefore(long id, LocalDateTime date, Pageable pageable);
 
-	List<Booking> findByItemUserIdAndEndDateBefore(long id, LocalDateTime date, Sort sort);
+	Page<Booking> findByItemUserIdAndStartDateAfter(long id, LocalDateTime date, Pageable pageable);
 
-	List<Booking> findByItemUserIdAndStartDateAfter(long id, LocalDateTime date, Sort sort);
-
-	List<Booking> findByItemUserIdAndStartDateBeforeAndEndDateAfter(long id, LocalDateTime startDate, LocalDateTime endDate, Sort sort);
+	Page<Booking> findByItemUserIdAndStartDateBeforeAndEndDateAfter(long id, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable);
 
 	Booking findTop1ByItemUserIdAndStartDateBeforeAndStatusIn(long id, LocalDateTime date, List<Status> status, Sort sort);
 
 	Booking findTop1ByItemUserIdAndStartDateAfterAndStatusIn(long id, LocalDateTime date, List<Status> status, Sort sort);
 
 	@Query("SELECT b FROM Booking b WHERE b.item.id IN :id AND b.endDate < :date ORDER BY b.endDate DESC")
-	List<Booking> findByItemIdAndStartDateBeforeOrderByEndDateDesc(@Param("id") Set<Long> id, @Param("date") LocalDateTime date);
+	Page<Booking> findByItemIdAndEndDateBeforeOrderByEndDateDesc(@Param("id") Set<Long> id, @Param("date") LocalDateTime date, Pageable pageable);
 
 	@Query("SELECT b FROM Booking b WHERE b.item.id IN :id AND b.startDate > :date ORDER BY b.startDate ASC")
-	List<Booking> findByItemIdAndStartDateAfterOrderByStartDateAsc(@Param("id") Set<Long> id, @Param("date") LocalDateTime date);
+	Page<Booking> findByItemIdAndStartDateAfterOrderByStartDateAsc(@Param("id") Set<Long> id, @Param("date") LocalDateTime date, Pageable pageable);
 
 	Optional<Booking> findTop1ByItemIdAndBookerIdAndStatusAndEndDateBefore(long itemId, long bookerId, Status status, LocalDateTime date);
 
 	Page<Booking> findByItemUserId(long userId, Pageable pageable);
 
-	Page<Booking> findByBookerId(long bookerId, Pageable pageable);
 }

@@ -2,6 +2,7 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -46,20 +47,11 @@ public class RequestServiceImpl implements RequestService {
 	}
 
 	@Override
-	public List<ItemRequestResponseDto> getOtherRequestsPageable(long userId, int from, int size) {
+	public List<ItemRequestResponseDto> getOtherRequests(long userId, Pageable pageable) {
 		UserDto user = userService.getById(userId);
-		PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size).withSort(byCreated);
+		PageRequest page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()).withSort(byCreated);
+
 		List<ItemRequest> requests = requestRepository.findByUserIdNot(userId, page).getContent();
-
-		return requests.stream()
-				.map(ItemRequestDtoMapper::toResponseDto)
-				.collect(Collectors.toList());
-	}
-
-	@Override
-	public List<ItemRequestResponseDto> getOtherRequests(long userId) {
-		UserDto user = userService.getById(userId);
-		List<ItemRequest> requests = requestRepository.findByUserIdNot(userId);
 
 		return requests.stream()
 				.map(ItemRequestDtoMapper::toResponseDto)
@@ -69,10 +61,7 @@ public class RequestServiceImpl implements RequestService {
 	@Override
 	public ItemRequestResponseDto getRequestById(long userId, long requestId) {
 		UserDto user = userService.getById(userId);
-		ItemRequest request = requestRepository.findById(requestId);
-		if (request == null) {
-			throw new NotFoundException("Запрос не найден.");
-		}
+		ItemRequest request = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос не найден."));
 		return ItemRequestDtoMapper.toResponseDto(request);
 	}
 }

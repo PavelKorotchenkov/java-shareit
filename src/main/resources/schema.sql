@@ -43,11 +43,3 @@ create TABLE IF NOT EXISTS comments (
     CONSTRAINT fk_comments_to_items FOREIGN KEY(item_id) REFERENCES items(item_id) ON delete CASCADE,
     CONSTRAINT fk_comments_to_users FOREIGN KEY(author_id) REFERENCES users(user_id) ON delete CASCADE
 );
-
-/*create TABLE IF NOT EXISTS items_requests (
-    item_id integer,
-    request_id integer,
-    FOREIGN KEY (item_id) REFERENCES items (item_id) ON delete CASCADE,
-    FOREIGN KEY (request_id) REFERENCES requests (request_id) ON delete CASCADE
-);*/
-

@@ -8,7 +8,7 @@ public class ItemDtoMapper {
 				.id(item.getId())
 				.name(item.getName())
 				.description(item.getDescription())
-				.available(item.getIsAvailable())
+				.available(item.getAvailable())
 				.ownerId(item.getUser() != null ? item.getUser().getId() : null)
 				.requestId(item.getRequest() == null? null : item.getRequest().getId())
 				.build();
@@ -35,7 +35,7 @@ public class ItemDtoMapper {
 				.id(itemDto.getId())
 				.name(itemDto.getName())
 				.description(itemDto.getDescription())
-				.isAvailable(itemDto.getAvailable())
+				.available(itemDto.getAvailable())
 				.build();
 	}
 
@@ -43,7 +43,7 @@ public class ItemDtoMapper {
 		return Item.builder()
 				.name(itemCreateDto.getName())
 				.description(itemCreateDto.getDescription())
-				.isAvailable(itemCreateDto.getAvailable())
+				.available(itemCreateDto.getAvailable())
 				.build();
 	}
 
@@ -52,7 +52,7 @@ public class ItemDtoMapper {
 				.id(item.getId())
 				.name(item.getName())
 				.description(item.getDescription())
-				.available(item.getIsAvailable())
+				.available(item.getAvailable())
 				.build();
 	}
 
@@ -61,7 +61,7 @@ public class ItemDtoMapper {
 				.id(item.getId())
 				.name(item.getName())
 				.description(item.getDescription())
-				.available(item.getIsAvailable())
+				.available(item.getAvailable())
 				.nextBooking(null)
 				.lastBooking(null)
 				.requestId(item.getRequest() == null? null : item.getRequest().getId())
@@ -73,7 +73,7 @@ public class ItemDtoMapper {
 				.id(item.getId())
 				.name(item.getName())
 				.description(item.getDescription())
-				.available(item.getIsAvailable())
+				.available(item.getAvailable())
 				.requestId(item.getRequest().getId())
 				.build();
 	}

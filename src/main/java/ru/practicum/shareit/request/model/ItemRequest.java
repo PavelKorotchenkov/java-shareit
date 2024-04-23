@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.model;
 
 import lombok.*;
-import ru.practicum.shareit.item.dto.ItemForRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -29,7 +28,6 @@ public class ItemRequest {
 	private LocalDateTime created;
 
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "request")
-	//@JoinColumn(name = "request_id")
 	private List<Item> items;
 
 	@ManyToOne

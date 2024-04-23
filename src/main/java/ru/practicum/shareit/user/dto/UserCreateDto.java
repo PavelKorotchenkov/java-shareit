@@ -1,9 +1,6 @@
 package ru.practicum.shareit.user.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -12,6 +9,7 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @ToString
 @Builder
+@EqualsAndHashCode
 public class UserCreateDto {
 	@NotEmpty(message = "Имя пользователя не может быть пустым")
 	private String name;

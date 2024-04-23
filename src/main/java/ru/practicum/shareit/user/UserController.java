@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -20,36 +21,36 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping
-	public UserDto saveNewUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+	public ResponseEntity<UserDto> saveNewUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 		log.info("Получен запрос на добавление пользователя: {}", userCreateDto);
 		UserDto savedUser = userService.save(userCreateDto);
 		log.info("Отработан запрос на добавление пользователя: {}", savedUser);
-		return savedUser;
+		return ResponseEntity.ok(savedUser);
 	}
 
 	@GetMapping
-	public List<UserDto> getAllUsers() {
+	public ResponseEntity<List<UserDto>> getAllUsers() {
 		log.info("Получен запрос на получение всех пользователей");
 		List<UserDto> allUsersDto = userService.getAll();
 		log.info("Отработан запрос на получение всех пользователей");
-		return allUsersDto;
+		return ResponseEntity.ok(allUsersDto);
 	}
 
 	@GetMapping("/{id}")
-	public UserDto getUserById(@PathVariable Long id) {
+	public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
 		log.info("Получен запрос на получение пользователя с id: {}", id);
 		UserDto userById = userService.getById(id);
 		log.info("Отработан запрос на получение пользователя с id: {}", id);
-		return userById;
+		return ResponseEntity.ok(userById);
 	}
 
 	@PatchMapping("/{id}")
-	public UserDto updateUser(@PathVariable Long id,
-							  @RequestBody UserUpdateDto userUpdateDto) {
+	public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
+											  @Valid @RequestBody UserUpdateDto userUpdateDto) {
 		log.info("Получен запрос на обновление пользователя: {}, id: {}", userUpdateDto, id);
 		UserDto updatedUser = userService.update(id, userUpdateDto);
 		log.info("Отработан запрос на обновление пользователя: {}, id: {}", updatedUser, id);
-		return updatedUser;
+		return ResponseEntity.ok(updatedUser);
 	}
 
 	@DeleteMapping("/{id}")

@@ -29,7 +29,7 @@ public class Item {
 	private String description;
 
 	@Column(name = "is_available")
-	private Boolean isAvailable;
+	private Boolean available;
 
 	@JoinColumn(name = "user_id")
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -43,7 +43,7 @@ public class Item {
 		this.id = id;
 		this.name = name;
 		this.description = description;
-		this.isAvailable = isAvailable;
+		this.available = isAvailable;
 		this.user = user;
 	}
 }

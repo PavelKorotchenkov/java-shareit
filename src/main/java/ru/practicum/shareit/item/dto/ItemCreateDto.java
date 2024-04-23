@@ -1,9 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.validation.constraints.NotEmpty;
@@ -13,6 +10,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @ToString
 @Builder
+@EqualsAndHashCode(of = "name")
 public class ItemCreateDto {
 	@NotEmpty
 	private String name;
@@ -21,5 +19,5 @@ public class ItemCreateDto {
 	@NotNull
 	private Boolean available;
 	private long ownerId;
-	private long requestId;
+	private Long requestId;
 }

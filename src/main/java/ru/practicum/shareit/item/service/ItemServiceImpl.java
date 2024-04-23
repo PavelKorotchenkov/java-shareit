@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.Status;
@@ -16,6 +18,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repo.CommentRepository;
 import ru.practicum.shareit.item.repo.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repo.RequestRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserDtoMapper;
@@ -43,31 +46,23 @@ public class ItemServiceImpl implements ItemService {
 		User owner = UserDtoMapper.toUser(userService.getById(itemCreateDto.getOwnerId()));
 		Item item = ItemDtoMapper.toItemCreate(itemCreateDto);
 		item.setUser(owner);
-		item.setRequest(requestRepository.findById(itemCreateDto.getRequestId()));
+		setRequest(itemCreateDto, item);
 		return ItemDtoMapper.toDto(itemRepository.save(item));
 	}
 
 	@Override
 	public ItemDto update(ItemUpdateDto itemUpdateDto) {
-		long ownerId = itemUpdateDto.getOwnerId();
-		User owner = UserDtoMapper.toUser(userService.getById(ownerId));
+		long userId = itemUpdateDto.getOwnerId();
+		User user = UserDtoMapper.toUser(userService.getById(userId));
 		Item item = getItem(itemUpdateDto.getId());
-		if (!Objects.equals(ownerId, item.getUser().getId())) {
+		if (!Objects.equals(userId, item.getUser().getId())) {
 			throw new AccessDeniedException("Доступ к редактированию запрещен, " +
 					"только владелец может редактировать вещь.");
 		}
-		Item itemToUpdate = ItemDtoMapper.toItem(getById(itemUpdateDto.getId(), ownerId));
-		itemToUpdate.setUser(owner);
+		Item itemToUpdate = ItemDtoMapper.toItem(getById(itemUpdateDto.getId(), userId));
+		itemToUpdate.setUser(user);
 
-		if (itemUpdateDto.getName() != null) {
-			itemToUpdate.setName(itemUpdateDto.getName());
-		}
-		if (itemUpdateDto.getDescription() != null) {
-			itemToUpdate.setDescription(itemUpdateDto.getDescription());
-		}
-		if (itemUpdateDto.getAvailable() != null) {
-			itemToUpdate.setIsAvailable(itemUpdateDto.getAvailable());
-		}
+		setFieldsToUpdate(itemUpdateDto, itemToUpdate);
 
 		return ItemDtoMapper.toDto(itemRepository.save(itemToUpdate));
 	}
@@ -89,16 +84,26 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
-	public List<ItemWithFullInfoDto> getAllByUserId(long userId) {
+	public List<ItemWithFullInfoDto> getUserItems(long userId, Pageable pageable) {
 		UserDto owner = userService.getById(userId);
+
+		PageRequest page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
 		Map<Long, Item> itemMap = itemRepository.findByUserId(owner.getId())
 				.stream()
 				.collect(Collectors.toMap(Item::getId, Function.identity()));
+
 		Set<Long> itemIds = itemMap.keySet();
-		Map<Item, List<Booking>> pastBookings = bookingRepository.findByItemIdAndStartDateBeforeOrderByEndDateDesc(itemIds, LocalDateTime.now())
+
+		Map<Item, List<Booking>> pastBookings = bookingRepository
+				.findByItemIdAndEndDateBeforeOrderByEndDateDesc(itemIds, LocalDateTime.now(), page)
+				.getContent()
 				.stream()
 				.collect(Collectors.groupingBy(Booking::getItem));
-		Map<Item, List<Booking>> nextBookings = bookingRepository.findByItemIdAndStartDateAfterOrderByStartDateAsc(itemIds, LocalDateTime.now())
+
+		Map<Item, List<Booking>> nextBookings = bookingRepository
+				.findByItemIdAndStartDateAfterOrderByStartDateAsc(itemIds, LocalDateTime.now(), page)
+				.getContent()
 				.stream()
 				.collect(Collectors.groupingBy(Booking::getItem));
 
@@ -117,12 +122,16 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
-	public List<ItemDto> searchBy(String text, long userId) {
-		UserDto userDto = userService.getById(userId);
+	public List<ItemDto> searchBy(long userId, String text, Pageable pageable) {
+		userService.getById(userId);
 		if (text.isEmpty() || text.isBlank()) {
 			return Collections.emptyList();
 		}
-		return itemRepository.findByNameOrDescriptionContainingAndAvailableTrue(text.toLowerCase())
+
+		PageRequest page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+		return itemRepository.findByNameOrDescriptionContainingAndAvailableTrue(text.toLowerCase(), page)
+				.getContent()
 				.stream()
 				.map(ItemDtoMapper::toDto)
 				.collect(Collectors.toList());
@@ -147,7 +156,6 @@ public class ItemServiceImpl implements ItemService {
 		return CommentDtoMapper.toResponseDto(commentRepository.save(comment));
 	}
 
-
 	private Item getItem(Long id) {
 		Optional<Item> optItem = itemRepository.findById(id);
 		return optItem.orElseThrow(() -> new NotFoundException("Вещь с таким id не найдена: " + id));
@@ -166,7 +174,26 @@ public class ItemServiceImpl implements ItemService {
 		return itemWithFullInfoDto;
 	}
 
-	private static boolean isOwner(long userId, Item item) {
+	private void setRequest(ItemCreateDto itemCreateDto, Item item) {
+		if (itemCreateDto.getRequestId() != null) {
+			Optional<ItemRequest> optRequest = requestRepository.findById(itemCreateDto.getRequestId());
+			item.setRequest(optRequest.orElse(null));
+		}
+	}
+
+	private void setFieldsToUpdate(ItemUpdateDto itemUpdateDto, Item itemToUpdate) {
+		if (itemUpdateDto.getName() != null) {
+			itemToUpdate.setName(itemUpdateDto.getName());
+		}
+		if (itemUpdateDto.getDescription() != null) {
+			itemToUpdate.setDescription(itemUpdateDto.getDescription());
+		}
+		if (itemUpdateDto.getAvailable() != null) {
+			itemToUpdate.setAvailable(itemUpdateDto.getAvailable());
+		}
+	}
+
+	private boolean isOwner(long userId, Item item) {
 		return item.getUser().getId() == userId;
 	}
 }

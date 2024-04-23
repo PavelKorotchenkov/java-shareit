@@ -1,9 +1,6 @@
 package ru.practicum.shareit.request.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -11,6 +8,7 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class ItemRequestCreateDto {
 	private long id;
 	@NotEmpty(message = "У запроса должно быть описание.")

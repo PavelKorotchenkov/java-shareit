@@ -1,14 +1,12 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
 @ToString
+@EqualsAndHashCode(of = "id")
 public class ItemUpdateDto {
 	private long id;
 	private String name;

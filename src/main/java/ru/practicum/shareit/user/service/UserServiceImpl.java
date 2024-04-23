@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repo.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,7 +21,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto save(UserCreateDto userCreateDto) {
-		User user = UserDtoMapper.toUserCreate(userCreateDto);
+		User user = UserDtoMapper.ofUserCreateDto(userCreateDto);
 		return UserDtoMapper.toDto(userRepository.save(user));
 	}
 
@@ -36,13 +35,16 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto getById(Long id) {
-		return UserDtoMapper.toDto(getUser(id));
+		return UserDtoMapper.toDto(userRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id)));
 	}
 
 	@Override
 	public UserDto update(Long id, UserUpdateDto userUpdateDto) {
-		UserDto currentUserDto = UserDtoMapper.toDto(getUser(id));
-		User userUpdate = UserDtoMapper.toUserUpdate(userUpdateDto);
+		User currentUser = userRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id));
+		UserDto currentUserDto = UserDtoMapper.toDto(currentUser);
+		User userUpdate = UserDtoMapper.ofUserUpdateDto(userUpdateDto);
 		userUpdate.setId(id);
 
 		if (userUpdate.getName() == null) {
@@ -59,10 +61,5 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void deleteById(Long id) {
 		userRepository.deleteById(id);
-	}
-
-	private User getUser(Long id) {
-		Optional<User> optUser = userRepository.findById(id);
-		return optUser.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id));
 	}
 }

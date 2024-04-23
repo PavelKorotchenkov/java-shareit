@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.State;
@@ -38,7 +39,6 @@ public class BookingServiceImpl implements BookingService {
 	private final UserService userService;
 
 	private final Sort byStartDateDesc = Sort.by(Sort.Direction.DESC, "StartDate");
-	private final Sort byEndDateDesc = Sort.by(Sort.Direction.DESC, "EndDate");
 
 	@Override
 	public BookingResponseDto add(BookingRequestDto bookingRequestDto) {
@@ -47,7 +47,7 @@ public class BookingServiceImpl implements BookingService {
 			throw new NotFoundException("Вы не можете забронировать свою вещь.");
 		}
 
-		if (!item.getIsAvailable()) {
+		if (!item.getAvailable()) {
 			throw new NotAvailableException("Вещь недоступна для бронирования.");
 		}
 
@@ -103,60 +103,45 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingResponseDto> getAllBookings(long booker, State state) {
-		UserDto userDto = userService.getById(booker);
+	public List<BookingResponseDto> getAllBookings(long booker, State state, Pageable pageable) {
+		userService.getById(booker);
 		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
-
+		Pageable sortByStartDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), byStartDateDesc);
 		if (state.equals(State.ALL)) {
-			result = getCollect(bookingRepository.findByBookerId(booker, byStartDateDesc));
+			result = getCollect(bookingRepository.findByBookerId(booker, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.PAST)) {
-			result = getCollect(bookingRepository.findByBookerIdAndEndDateBefore(booker, date, byStartDateDesc));
+			result = getCollect(bookingRepository.findByBookerIdAndEndDateBefore(booker, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.CURRENT)) {
-			result = getCollect(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfter(booker, date, date, byStartDateDesc));
+			result = getCollect(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfter(booker, date, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.FUTURE)) {
-			result = getCollect(bookingRepository.findByBookerIdAndStartDateAfter(booker, date, byStartDateDesc));
+			result = getCollect(bookingRepository.findByBookerIdAndStartDateAfter(booker, date, sortByStartDateDesc).getContent());
 		} else {
-			result = getCollect(bookingRepository.findByBookerIdAndStatus(booker, Status.valueOf(state.name()), byStartDateDesc));
+			result = getCollect(bookingRepository.findByBookerIdAndStatus(booker, Status.valueOf(state.name()), sortByStartDateDesc).getContent());
 		}
 
 		return result;
 	}
 
 	@Override
-	public List<BookingResponseDto> getAllOwnerBookings(long booker, State state) {
-		UserDto userDto = userService.getById(booker);
+	public List<BookingResponseDto> getAllOwnerBookings(long ownerId, State state, Pageable pageable) {
+		userService.getById(ownerId);
 		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
+		Pageable sortByStartDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), byStartDateDesc);
 		if (state.equals(State.ALL)) {
-			result = getCollect(bookingRepository.findByItemUserId(booker, byStartDateDesc));
+			result = getCollect(bookingRepository.findByItemUserId(ownerId, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.PAST)) {
-			result = getCollect(bookingRepository.findByItemUserIdAndEndDateBefore(booker, date, byEndDateDesc));
+			result = getCollect(bookingRepository.findByItemUserIdAndEndDateBefore(ownerId, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.CURRENT)) {
-			result = getCollect(bookingRepository.findByItemUserIdAndStartDateBeforeAndEndDateAfter(booker, date, date, byStartDateDesc));
+			result = getCollect(bookingRepository.findByItemUserIdAndStartDateBeforeAndEndDateAfter(ownerId, date, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.FUTURE)) {
-			result = getCollect(bookingRepository.findByItemUserIdAndStartDateAfter(booker, date, byStartDateDesc));
+			result = getCollect(bookingRepository.findByItemUserIdAndStartDateAfter(ownerId, date, sortByStartDateDesc).getContent());
 		} else {
-			result = getCollect(bookingRepository.findByItemUserIdAndStatus(booker, Status.valueOf(state.name()), byStartDateDesc));
+			result = getCollect(bookingRepository.findByItemUserIdAndStatus(ownerId, Status.valueOf(state.name()), sortByStartDateDesc).getContent());
 		}
 
 		return result;
-	}
-
-	@Override
-	public List<BookingResponseDto> getAllBookingsPageable(long userId, Integer from, Integer size) {
-		UserDto userDto = userService.getById(userId);
-		PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size).withSort(byStartDateDesc);
-
-		return getCollect(bookingRepository.findByBookerId(userId, page).getContent());
-	}
-
-	@Override
-	public List<BookingResponseDto> getAllOwnerBookingsPageable(long userId, Integer from, Integer size) {
-		UserDto userDto = userService.getById(userId);
-		PageRequest page = PageRequest.of(from > 0 ? from / size : 0, size).withSort(byStartDateDesc);
-
-		return getCollect(bookingRepository.findByItemUserId(userId, page).getContent());
 	}
 
 	private List<BookingResponseDto> getCollect(List<Booking> bookingRepository) {
