@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import ru.practicum.shareit.item.model.Comment;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class CommentDtoMapper {

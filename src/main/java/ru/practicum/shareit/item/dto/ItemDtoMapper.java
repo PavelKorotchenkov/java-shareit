@@ -10,7 +10,7 @@ public class ItemDtoMapper {
 				.description(item.getDescription())
 				.available(item.getAvailable())
 				.ownerId(item.getUser() != null ? item.getUser().getId() : null)
-				.requestId(item.getRequest() == null? null : item.getRequest().getId())
+				.requestId(item.getRequest() == null ? null : item.getRequest().getId())
 				.build();
 	}
 
@@ -64,7 +64,7 @@ public class ItemDtoMapper {
 				.available(item.getAvailable())
 				.nextBooking(null)
 				.lastBooking(null)
-				.requestId(item.getRequest() == null? null : item.getRequest().getId())
+				.requestId(item.getRequest() == null ? null : item.getRequest().getId())
 				.build();
 	}
 
