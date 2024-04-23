@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.exception.BookingDateException;
+import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -93,6 +95,40 @@ class BookingControllerTestIT {
 				.getContentAsString();
 
 		assertEquals(objectMapper.writeValueAsString(response), result);
+	}
+
+	@SneakyThrows
+	@Test
+	void addBooking_whenItemNotAvailable_thenThrowNotAvailableException() {
+		BookingRequestDto request = BookingRequestDto.builder()
+				.start(formattedDateTimeStart)
+				.end(formattedDateTimeEnd)
+				.build();
+
+		when(bookingService.add(any())).thenThrow(NotAvailableException.class);
+
+		mockMvc.perform(post("/bookings")
+						.header(X_SHARER_USER_ID, 1L)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isBadRequest());
+	}
+
+	@SneakyThrows
+	@Test
+	void addBooking_whenBookingTimeNotValid_thenThrowBookingDateException() {
+		BookingRequestDto request = BookingRequestDto.builder()
+				.start(formattedDateTimeStart)
+				.end(formattedDateTimeEnd)
+				.build();
+
+		when(bookingService.add(any())).thenThrow(BookingDateException.class);
+
+		mockMvc.perform(post("/bookings")
+						.header(X_SHARER_USER_ID, 1L)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isBadRequest());
 	}
 
 	@SneakyThrows

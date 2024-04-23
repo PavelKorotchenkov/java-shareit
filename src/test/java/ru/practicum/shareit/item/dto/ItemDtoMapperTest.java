@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -42,13 +45,14 @@ class ItemDtoMapperTest {
 	@SneakyThrows
 	@Test
 	void toItemForRequestDto() {
-		ItemForRequestDto itemForRequestDto = ItemForRequestDto.builder()
+		Item item = Item.builder()
 				.id(1L)
 				.name("name")
 				.description("description")
 				.available(false)
-				.requestId(1L)
+				.request(ItemRequest.builder().id(1L).build())
 				.build();
+		ItemForRequestDto itemForRequestDto = ItemDtoMapper.toItemForRequestDto(item);
 
 		JsonContent<ItemForRequestDto> result = itemForRequestDtoJacksonTester.write(itemForRequestDto);
 		assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);

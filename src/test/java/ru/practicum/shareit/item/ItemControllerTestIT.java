@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -166,6 +167,27 @@ class ItemControllerTestIT {
 				.andExpect(status().isInternalServerError());
 
 		verify(itemService, never()).update(itemUpdateDto);
+	}
+
+
+	@SneakyThrows
+	@Test
+	void updateItem_whenUserIsNotOwner_thenReturnAccessDeniedException() {
+		long itemId = 1L;
+		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
+				.id(itemId)
+				.name("name upd")
+				.description("description upd")
+				.available(true)
+				.build();
+
+		when(itemService.update(itemUpdateDto)).thenThrow(AccessDeniedException.class);
+
+		mockMvc.perform(patch("/items/{id}", itemId)
+						.header(X_SHARER_USER_ID, 1L)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemUpdateDto)))
+				.andExpect(status().isForbidden());
 	}
 
 	@SneakyThrows
