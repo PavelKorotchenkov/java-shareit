@@ -26,6 +26,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -288,6 +289,57 @@ class BookingControllerTestIT {
 				.getContentAsString();
 
 		assertEquals(objectMapper.writeValueAsString(response), result);
+	}
+
+	@SneakyThrows
+	@Test
+	void getAllBookings_whenPageParamsNulls_thenReturnStatusOk() {
+		long userId = 1L;
+		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
+		ItemDto itemDto = ItemDto.builder().name("item").description("desc").ownerId(3L).build();
+		BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
+				.id(1L)
+				.start(formattedDateTimeStart)
+				.end(formattedDateTimeEnd)
+				.status(Status.WAITING)
+				.booker(userDto)
+				.item(itemDto)
+				.build();
+		List<BookingResponseDto> response = List.of(bookingResponseDto);
+
+		when(bookingService.getAllBookings(anyLong(), any(), any())).thenReturn(response);
+
+		String result = mockMvc.perform(get("/bookings")
+						.header(X_SHARER_USER_ID, 1L)
+						.param("state", State.ALL.name())
+						.param("from", (String) null)
+						.param("size", (String) null))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].id").value(1L))
+				.andReturn()
+				.getResponse()
+				.getContentAsString();
+
+		assertEquals(objectMapper.writeValueAsString(response), result);
+	}
+
+	@SneakyThrows
+	@Test
+	void getAllBookings_whenFromParamLessThanZero_thenThrowIllegalArgumentException() {
+		int from = -1;
+		int size = 1;
+		mockMvc.perform(get("/bookings")
+						.header(X_SHARER_USER_ID, 1L)
+						.param("state", State.ALL.name())
+						.param("from", String.valueOf(from))
+						.param("size", String.valueOf(size)))
+				.andExpect(status().isInternalServerError())
+				.andExpect(result -> {
+					Throwable exception = result.getResolvedException();
+					assertTrue(exception instanceof IllegalArgumentException);
+					assertEquals("Параметр 'from' должен быть больше нуля.", exception.getMessage());
+				});
 	}
 
 	@SneakyThrows
