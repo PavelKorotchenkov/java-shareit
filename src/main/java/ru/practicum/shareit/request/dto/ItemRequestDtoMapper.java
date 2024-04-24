@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 public class ItemRequestDtoMapper {
 
-
 	public static ItemRequest toItemRequest(ItemRequestCreateDto request) {
 		return ItemRequest.builder()
 				.id(request.getId())
