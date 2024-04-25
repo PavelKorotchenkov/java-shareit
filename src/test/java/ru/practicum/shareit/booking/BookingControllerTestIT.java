@@ -82,7 +82,7 @@ class BookingControllerTestIT {
 						.header(X_SHARER_USER_ID, 1L)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(request)))
-				.andExpect(status().isOk())
+				.andExpect(status().is2xxSuccessful())
 				.andExpect(jsonPath("$.id", is(response.getId()), Long.class))
 				.andExpect(jsonPath("$.start", is(response.getStart()), String.class))
 				.andExpect(jsonPath("$.end", is(response.getEnd()), String.class))
@@ -210,10 +210,9 @@ class BookingControllerTestIT {
 	@Test
 	void getBookingInfoById_whenValidBookerIdAndOwnerId_thenReturnStatusOkWithBookingResponseDto() {
 		long userId = 1L;
-		long ownerId = 2L;
 		long bookingId = 1L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
-		ItemDto itemDto = ItemDto.builder().name("item").description("desc").ownerId(ownerId).build();
+		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
 		BookingResponseDto response = BookingResponseDto.builder()
 				.id(1L)
 				.start(formattedDateTimeStart)
@@ -236,7 +235,6 @@ class BookingControllerTestIT {
 				.andExpect(jsonPath("$.booker.email", is(userDto.getEmail()), String.class))
 				.andExpect(jsonPath("$.item.name", is(itemDto.getName()), String.class))
 				.andExpect(jsonPath("$.item.description", is(itemDto.getDescription()), String.class))
-				.andExpect(jsonPath("$.item.ownerId", is(itemDto.getOwnerId()), Long.class))
 				.andReturn()
 				.getResponse()
 				.getContentAsString();
@@ -261,7 +259,7 @@ class BookingControllerTestIT {
 		int size = 1;
 		long userId = 1L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
-		ItemDto itemDto = ItemDto.builder().name("item").description("desc").ownerId(3L).build();
+		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
 		State state = State.ALL;
 		Pageable page = PageRequest.of(from, size);
 		BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
@@ -296,7 +294,7 @@ class BookingControllerTestIT {
 	void getAllBookings_whenPageParamsNulls_thenReturnStatusOk() {
 		long userId = 1L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
-		ItemDto itemDto = ItemDto.builder().name("item").description("desc").ownerId(3L).build();
+		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
 		BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
 				.id(1L)
 				.start(formattedDateTimeStart)
@@ -363,7 +361,7 @@ class BookingControllerTestIT {
 		long userId = 1L;
 		long ownerId = 2L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
-		ItemDto itemDto = ItemDto.builder().name("item").description("desc").ownerId(ownerId).build();
+		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
 		State state = State.ALL;
 		Pageable page = PageRequest.of(from, size);
 		BookingResponseDto bookingResponseDto = BookingResponseDto.builder()

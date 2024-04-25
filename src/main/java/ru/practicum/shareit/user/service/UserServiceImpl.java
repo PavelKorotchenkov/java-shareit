@@ -22,20 +22,20 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto save(UserCreateDto userCreateDto) {
 		User user = UserDtoMapper.ofUserCreateDto(userCreateDto);
-		return UserDtoMapper.toDto(userRepository.save(user));
+		return UserDtoMapper.toUserDto(userRepository.save(user));
 	}
 
 	@Override
 	public List<UserDto> getAll() {
 		return userRepository.findAll()
 				.stream()
-				.map(UserDtoMapper::toDto)
+				.map(UserDtoMapper::toUserDto)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public UserDto getById(Long id) {
-		return UserDtoMapper.toDto(userRepository.findById(id)
+		return UserDtoMapper.toUserDto(userRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id)));
 	}
 
@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
 	public UserDto update(Long id, UserUpdateDto userUpdateDto) {
 		User currentUser = userRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id));
-		UserDto currentUserDto = UserDtoMapper.toDto(currentUser);
+		UserDto currentUserDto = UserDtoMapper.toUserDto(currentUser);
 		User userUpdate = UserDtoMapper.ofUserUpdateDto(userUpdateDto);
 		userUpdate.setId(id);
 
@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
 			userUpdate.setEmail(currentUserDto.getEmail());
 		}
 
-		return UserDtoMapper.toDto(userRepository.save(userUpdate));
+		return UserDtoMapper.toUserDto(userRepository.save(userUpdate));
 	}
 
 	@Override

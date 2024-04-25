@@ -6,8 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -41,15 +39,13 @@ class ItemControllerTest {
 				.name("name")
 				.description("description")
 				.available(true)
-				.ownerId(userId)
 				.requestId(1L).build();
 
 		when(itemService.add(itemCreateDtoToSave)).thenReturn(expectedResponse);
 
-		ResponseEntity<ItemDto> response = itemController.addItem(userId, itemCreateDtoToSave);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(Objects.requireNonNull(response.getBody()).getName(), "name");
-		assertEquals(Objects.requireNonNull(response.getBody()).getDescription(), "description");
+		ItemDto response = itemController.addItem(userId, itemCreateDtoToSave);
+		assertEquals(Objects.requireNonNull(response).getName(), "name");
+		assertEquals(Objects.requireNonNull(response).getDescription(), "description");
 	}
 
 	@Test
@@ -66,14 +62,12 @@ class ItemControllerTest {
 				.name("name upd")
 				.description("description upd")
 				.available(true)
-				.ownerId(ownerId)
 				.requestId(null).build();
 
 		when(itemService.update(itemUpdateDto)).thenReturn(expectedResponse);
 
-		ResponseEntity<ItemDto> response = itemController.updateItem(ownerId, itemId, itemUpdateDto);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedResponse, response.getBody());
+		ItemDto response = itemController.updateItem(ownerId, itemId, itemUpdateDto);
+		assertEquals(expectedResponse.getName(), response.getName());
 	}
 
 	@Test
@@ -92,14 +86,13 @@ class ItemControllerTest {
 
 		when(itemService.getById(itemId, userId)).thenReturn(expectedItem);
 
-		ResponseEntity<ItemWithFullInfoDto> response = itemController.getItem(itemId, userId);
+		ItemWithFullInfoDto response = itemController.getItem(itemId, userId);
 
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedItem, response.getBody());
+		assertEquals(expectedItem.getName(), response.getName());
 	}
 
 	@Test
-	void findAllByOwnerId_whenValidParameters_thenReturnStatusOkWithListWithOneItemWithFullInfoDtoInBody() {
+	void findAllByOwnerId_whenValidParameters_thenReturnListWithOneItemWithFullInfoDtoInBody() {
 		long ownerId = 1L;
 		int from = 0;
 		int size = 1;
@@ -114,14 +107,13 @@ class ItemControllerTest {
 				.requestId(null).build();
 		List<ItemWithFullInfoDto> expectedList = List.of(expectedItem);
 		PageRequest page = PageRequest.of(from, size);
-		when(itemService.getUserItems(ownerId, page)).thenReturn(expectedList);
-		ResponseEntity<List<ItemWithFullInfoDto>> response = itemController.findAllByOwnerId(ownerId, from, size);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedList, response.getBody());
+		when(itemService.findByOwnerId(ownerId, page)).thenReturn(expectedList);
+		List<ItemWithFullInfoDto> response = itemController.findAllByOwnerId(ownerId, from, size);
+		assertEquals(expectedList, response);
 	}
 
 	@Test
-	void searchBy() {
+	void searchBy_whenInvoked_thenReturnListWithItemDto() {
 		long userId = 1L;
 		String text = "item";
 		int from = 0;
@@ -131,14 +123,12 @@ class ItemControllerTest {
 				.name("name")
 				.description("item description")
 				.available(true)
-				.ownerId(2L)
 				.requestId(1L).build();
 		List<ItemDto> expectedList = List.of(dto);
 		PageRequest page = PageRequest.of(from, size);
 		when(itemService.searchBy(userId, text, page)).thenReturn(expectedList);
-		ResponseEntity<List<ItemDto>> response = itemController.searchBy(userId, text, from, size);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedList, response.getBody());
+		List<ItemDto> response = itemController.searchBy(userId, text, from, size);
+		assertEquals(expectedList, response);
 	}
 
 	@Test
@@ -158,8 +148,7 @@ class ItemControllerTest {
 				.created(created)
 				.build();
 		when(itemService.addComment(commentRequestDto)).thenReturn(expectedComment);
-		ResponseEntity<CommentResponseDto> response = itemController.addComment(X_SHARER_USER_ID, itemId, commentRequestDto);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedComment, response.getBody());
+		CommentResponseDto response = itemController.addComment(X_SHARER_USER_ID, itemId, commentRequestDto);
+		assertEquals(expectedComment, response);
 	}
 }

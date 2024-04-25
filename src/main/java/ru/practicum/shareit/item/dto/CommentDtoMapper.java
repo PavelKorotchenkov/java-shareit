@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 
 public class CommentDtoMapper {
 
-	public static CommentResponseDto toResponseDto(Comment comment) {
+	public static CommentResponseDto toCommentResponseDto(Comment comment) {
 		return CommentResponseDto.builder()
 				.id(comment.getId())
 				.text(comment.getText())
@@ -17,7 +17,7 @@ public class CommentDtoMapper {
 				.build();
 	}
 
-	public static Comment toComment(CommentRequestDto commentRequestDto) {
+	public static Comment ofCommentRequestDto(CommentRequestDto commentRequestDto) {
 		return Comment.builder()
 				.text(commentRequestDto.getText())
 				.build();

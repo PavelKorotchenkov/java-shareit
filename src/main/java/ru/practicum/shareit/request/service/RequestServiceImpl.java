@@ -30,10 +30,10 @@ public class RequestServiceImpl implements RequestService {
 	@Override
 	public ItemRequestResponseDto addRequest(ItemRequestCreateDto itemRequestDto, long userId) {
 		UserDto user = userService.getById(userId);
-		ItemRequest itemRequest = ItemRequestDtoMapper.toItemRequest(itemRequestDto);
+		ItemRequest itemRequest = ItemRequestDtoMapper.ofItemRequestCreateDto(itemRequestDto);
 		itemRequest.setCreated(LocalDateTime.now());
-		itemRequest.setUser(UserDtoMapper.toUser(user));
-		return ItemRequestDtoMapper.toResponseDto(requestRepository.save(itemRequest));
+		itemRequest.setUser(UserDtoMapper.ofUserDto(user));
+		return ItemRequestDtoMapper.toItemRequestResponseDto(requestRepository.save(itemRequest));
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class RequestServiceImpl implements RequestService {
 		List<ItemRequest> requests = requestRepository.findByUserId(user.getId(), byCreated);
 
 		return requests.stream()
-				.map(ItemRequestDtoMapper::toResponseDto)
+				.map(ItemRequestDtoMapper::toItemRequestResponseDto)
 				.collect(Collectors.toList());
 	}
 
@@ -54,7 +54,7 @@ public class RequestServiceImpl implements RequestService {
 		List<ItemRequest> requests = requestRepository.findByUserIdNot(userId, page).getContent();
 
 		return requests.stream()
-				.map(ItemRequestDtoMapper::toResponseDto)
+				.map(ItemRequestDtoMapper::toItemRequestResponseDto)
 				.collect(Collectors.toList());
 	}
 
@@ -62,6 +62,6 @@ public class RequestServiceImpl implements RequestService {
 	public ItemRequestResponseDto getRequestById(long userId, long requestId) {
 		UserDto user = userService.getById(userId);
 		ItemRequest request = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос не найден."));
-		return ItemRequestDtoMapper.toResponseDto(request);
+		return ItemRequestDtoMapper.toItemRequestResponseDto(request);
 	}
 }

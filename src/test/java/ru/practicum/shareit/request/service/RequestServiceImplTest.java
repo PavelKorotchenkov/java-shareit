@@ -47,7 +47,7 @@ class RequestServiceImplTest {
 		expectedItemRequest.setDescription("desc");
 
 		when(userService.getById(userId)).thenReturn(UserDto.builder().id(userId).build());
-		when(requestRepository.save(ItemRequestDtoMapper.toItemRequest(itemRequestToSaveDto))).thenReturn(expectedItemRequest);
+		when(requestRepository.save(ItemRequestDtoMapper.ofItemRequestCreateDto(itemRequestToSaveDto))).thenReturn(expectedItemRequest);
 
 		ItemRequestResponseDto actualItemRequest = requestService.addRequest(itemRequestToSaveDto, userId);
 

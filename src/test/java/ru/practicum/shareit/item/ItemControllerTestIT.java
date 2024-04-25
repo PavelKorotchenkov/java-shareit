@@ -50,7 +50,7 @@ class ItemControllerTestIT {
 				.name("name")
 				.description("description")
 				.available(true)
-				.ownerId(userId).build();
+				.build();
 
 		when(itemService.add(itemCreateDtoToSave)).thenReturn(expectedResponse);
 
@@ -58,7 +58,7 @@ class ItemControllerTestIT {
 						.header(X_SHARER_USER_ID, ID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
-				.andExpect(status().isOk())
+				.andExpect(status().is2xxSuccessful())
 				.andReturn()
 				.getResponse()
 				.getContentAsString();
@@ -133,7 +133,7 @@ class ItemControllerTestIT {
 				.name("name upd")
 				.description("description upd")
 				.available(true)
-				.ownerId(ID).build();
+				.build();
 
 		when(itemService.update(itemUpdateDto)).thenReturn(expectedResponse);
 
@@ -236,7 +236,7 @@ class ItemControllerTestIT {
 		List<ItemWithFullInfoDto> expectedList = Collections.emptyList();
 
 		Pageable page = PageRequest.of(from, size);
-		when(itemService.getUserItems(ID, page)).thenReturn(expectedList);
+		when(itemService.findByOwnerId(ID, page)).thenReturn(expectedList);
 
 		String result = mockMvc.perform(get("/items")
 						.header(X_SHARER_USER_ID, ID)
@@ -258,7 +258,7 @@ class ItemControllerTestIT {
 		mockMvc.perform(get("/items"))
 				.andExpect(status().isInternalServerError());
 
-		verify(itemService, never()).getUserItems(anyInt(), any());
+		verify(itemService, never()).findByOwnerId(anyInt(), any());
 	}
 
 	@SneakyThrows
@@ -272,7 +272,7 @@ class ItemControllerTestIT {
 						.param("from", String.valueOf(from))
 						.param("size", String.valueOf(size)))
 				.andExpect(status().isInternalServerError());
-		verify(itemService, never()).getUserItems(anyInt(), any());
+		verify(itemService, never()).findByOwnerId(anyInt(), any());
 	}
 
 	@SneakyThrows

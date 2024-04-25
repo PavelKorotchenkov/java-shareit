@@ -43,28 +43,28 @@ public class ItemServiceImpl implements ItemService {
 
 	@Override
 	public ItemDto add(ItemCreateDto itemCreateDto) {
-		User owner = UserDtoMapper.toUser(userService.getById(itemCreateDto.getOwnerId()));
-		Item item = ItemDtoMapper.toItemCreate(itemCreateDto);
-		item.setUser(owner);
+		User owner = UserDtoMapper.ofUserDto(userService.getById(itemCreateDto.getOwnerId()));
+		Item item = ItemDtoMapper.ofItemCreateDto(itemCreateDto);
+		item.setOwner(owner);
 		setRequest(itemCreateDto, item);
-		return ItemDtoMapper.toDto(itemRepository.save(item));
+		return ItemDtoMapper.toItemDto(itemRepository.save(item));
 	}
 
 	@Override
 	public ItemDto update(ItemUpdateDto itemUpdateDto) {
 		long userId = itemUpdateDto.getOwnerId();
-		User user = UserDtoMapper.toUser(userService.getById(userId));
+		User user = UserDtoMapper.ofUserDto(userService.getById(userId));
 		Item item = getItem(itemUpdateDto.getId());
-		if (!Objects.equals(userId, item.getUser().getId())) {
+		if (!Objects.equals(userId, item.getOwner().getId())) {
 			throw new AccessDeniedException("Доступ к редактированию запрещен, " +
 					"только владелец может редактировать вещь.");
 		}
-		Item itemToUpdate = ItemDtoMapper.toItem(getById(itemUpdateDto.getId(), userId));
-		itemToUpdate.setUser(user);
+		Item itemToUpdate = ItemDtoMapper.ofItemWithFullInfoDto(getById(itemUpdateDto.getId(), userId));
+		itemToUpdate.setOwner(user);
 
 		setFieldsToUpdate(itemUpdateDto, itemToUpdate);
 
-		return ItemDtoMapper.toDto(itemRepository.save(itemToUpdate));
+		return ItemDtoMapper.toItemDto(itemRepository.save(itemToUpdate));
 	}
 
 	@Override
@@ -74,8 +74,8 @@ public class ItemServiceImpl implements ItemService {
 		Booking lastOpt = null;
 		Booking nextOpt = null;
 		if (isOwner(userId, item)) {
-			lastOpt = bookingRepository.findTop1ByItemUserIdAndStartDateBeforeAndStatusIn(userId, LocalDateTime.now(), List.of(Status.APPROVED), byEndDateDesc);
-			nextOpt = bookingRepository.findTop1ByItemUserIdAndStartDateAfterAndStatusIn(userId, LocalDateTime.now(), List.of(Status.APPROVED), byStartDateAsc);
+			lastOpt = bookingRepository.findTop1ByItemOwnerIdAndStartDateBeforeAndStatusIn(userId, LocalDateTime.now(), List.of(Status.APPROVED), byEndDateDesc);
+			nextOpt = bookingRepository.findTop1ByItemOwnerIdAndStartDateAfterAndStatusIn(userId, LocalDateTime.now(), List.of(Status.APPROVED), byStartDateAsc);
 		}
 		ItemWithFullInfoDto itemWithFullInfoDto = makeItemWithBookingsDto(item, lastOpt, nextOpt);
 		List<CommentShort> comments = commentRepository.findAllByItemId(itemId);
@@ -84,26 +84,24 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	@Override
-	public List<ItemWithFullInfoDto> getUserItems(long userId, Pageable pageable) {
+	public List<ItemWithFullInfoDto> findByOwnerId(long userId, Pageable pageable) {
 		UserDto owner = userService.getById(userId);
 
 		PageRequest page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
 
-		Map<Long, Item> itemMap = itemRepository.findByUserId(owner.getId())
+		Map<Long, Item> itemMap = itemRepository.findByOwnerId(owner.getId())
 				.stream()
 				.collect(Collectors.toMap(Item::getId, Function.identity()));
 
 		Set<Long> itemIds = itemMap.keySet();
 
 		Map<Item, List<Booking>> pastBookings = bookingRepository
-				.findByItemIdAndEndDateBeforeOrderByEndDateDesc(itemIds, LocalDateTime.now(), page)
-				.getContent()
+				.findByItemIdAndEndDateBeforeOrderByEndDateDesc(itemIds, LocalDateTime.now())
 				.stream()
 				.collect(Collectors.groupingBy(Booking::getItem));
 
 		Map<Item, List<Booking>> nextBookings = bookingRepository
-				.findByItemIdAndStartDateAfterOrderByStartDateAsc(itemIds, LocalDateTime.now(), page)
-				.getContent()
+				.findByItemIdAndStartDateAfterOrderByStartDateAsc(itemIds, LocalDateTime.now())
 				.stream()
 				.collect(Collectors.groupingBy(Booking::getItem));
 
@@ -133,16 +131,16 @@ public class ItemServiceImpl implements ItemService {
 		return itemRepository.findByNameOrDescriptionContainingAndAvailableTrue(text.toLowerCase(), page)
 				.getContent()
 				.stream()
-				.map(ItemDtoMapper::toDto)
+				.map(ItemDtoMapper::toItemDto)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public CommentResponseDto addComment(CommentRequestDto commentRequestDto) {
-		Comment comment = CommentDtoMapper.toComment(commentRequestDto);
+		Comment comment = CommentDtoMapper.ofCommentRequestDto(commentRequestDto);
 		UserDto userDto = userService.getById(commentRequestDto.getAuthorId());
 		Item item = itemRepository.findById(commentRequestDto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена"));
-		comment.setAuthor(UserDtoMapper.toUser(userDto));
+		comment.setAuthor(UserDtoMapper.ofUserDto(userDto));
 		comment.setItem(item);
 		comment.setCreated(LocalDateTime.now().plusSeconds(1));
 		//Находим завершенное бронирование этой вещи этим пользователем, иначе бросаем ошибку
@@ -153,7 +151,7 @@ public class ItemServiceImpl implements ItemService {
 				LocalDateTime.now()
 		);
 		bookingOpt.orElseThrow(() -> new NotAvailableException("Нужно завершить аренду вещи, чтобы оставить к ней комментарий."));
-		return CommentDtoMapper.toResponseDto(commentRepository.save(comment));
+		return CommentDtoMapper.toCommentResponseDto(commentRepository.save(comment));
 	}
 
 	private Item getItem(Long id) {
@@ -162,13 +160,13 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	private ItemWithFullInfoDto makeItemWithBookingsDto(Item item, Booking lastBooking, Booking nextBooking) {
-		ItemWithFullInfoDto itemWithFullInfoDto = ItemDtoMapper.toItemWithBookingsDto(item);
+		ItemWithFullInfoDto itemWithFullInfoDto = ItemDtoMapper.toItemWithFullInfoDto(item);
 		if (lastBooking != null) {
-			BookingShortDto last = BookingDtoMapper.toShortDto(lastBooking);
+			BookingShortDto last = BookingDtoMapper.toBookingShortDto(lastBooking);
 			itemWithFullInfoDto.setLastBooking(last);
 		}
 		if (nextBooking != null) {
-			BookingShortDto next = BookingDtoMapper.toShortDto(nextBooking);
+			BookingShortDto next = BookingDtoMapper.toBookingShortDto(nextBooking);
 			itemWithFullInfoDto.setNextBooking(next);
 		}
 		return itemWithFullInfoDto;
@@ -194,6 +192,6 @@ public class ItemServiceImpl implements ItemService {
 	}
 
 	private boolean isOwner(long userId, Item item) {
-		return item.getUser().getId() == userId;
+		return item.getOwner().getId() == userId;
 	}
 }

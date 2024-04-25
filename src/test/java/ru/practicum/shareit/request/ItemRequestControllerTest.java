@@ -6,8 +6,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.service.RequestService;
@@ -35,11 +33,9 @@ class ItemRequestControllerTest {
 		when(requestService.addRequest(itemRequestCreateDto, userId)).thenReturn(ItemRequestResponseDto.builder()
 				.description("description").build());
 
-		ResponseEntity<ItemRequestResponseDto> response = itemRequestController
-				.addRequest(userId, itemRequestCreateDto);
+		ItemRequestResponseDto response = itemRequestController.addRequest(userId, itemRequestCreateDto);
 
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(itemRequestCreateDto.getDescription(), Objects.requireNonNull(response.getBody()).getDescription());
+		assertEquals(itemRequestCreateDto.getDescription(), Objects.requireNonNull(response).getDescription());
 	}
 
 	@Test
@@ -47,10 +43,9 @@ class ItemRequestControllerTest {
 		long userId = 1L;
 		List<ItemRequestResponseDto> expectedList = List.of(ItemRequestResponseDto.builder().build());
 		when(requestService.getRequests(userId)).thenReturn(expectedList);
-		ResponseEntity<List<ItemRequestResponseDto>> response = itemRequestController.getRequests(userId);
+		List<ItemRequestResponseDto> response = itemRequestController.getRequests(userId);
 
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedList, response.getBody());
+		assertEquals(expectedList, response);
 	}
 
 	@Test
@@ -58,9 +53,8 @@ class ItemRequestControllerTest {
 		long userId = 1L;
 		List<ItemRequestResponseDto> expectedList = List.of(ItemRequestResponseDto.builder().build());
 		when(requestService.getOtherRequests(userId, PageRequest.of(1, 1))).thenReturn(expectedList);
-		ResponseEntity<List<ItemRequestResponseDto>> response = itemRequestController.getOtherRequests(userId, 1, 1);
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedList, response.getBody());
+		List<ItemRequestResponseDto> response = itemRequestController.getOtherRequests(userId, 1, 1);
+		assertEquals(expectedList, response);
 	}
 
 	@Test
@@ -69,9 +63,8 @@ class ItemRequestControllerTest {
 		long requestId = 1L;
 		ItemRequestResponseDto expectedRequest = ItemRequestResponseDto.builder().build();
 		when(requestService.getRequestById(userId, requestId)).thenReturn(expectedRequest);
-		ResponseEntity<ItemRequestResponseDto> response = itemRequestController.getRequestById(userId, requestId);
+		ItemRequestResponseDto response = itemRequestController.getRequestById(userId, requestId);
 
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedRequest, response.getBody());
+		assertEquals(expectedRequest, response);
 	}
 }

@@ -8,7 +8,7 @@ import javax.validation.constraints.NotEmpty;
 @Getter
 @Setter
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(of = "id")
 public class ItemRequestCreateDto {
 	private long id;
 	@NotEmpty(message = "У запроса должно быть описание.")

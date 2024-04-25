@@ -44,7 +44,7 @@ class UserControllerTestIT {
 		String result = mockMvc.perform(post("/users")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(userCreateDto)))
-				.andExpect(status().isOk())
+				.andExpect(status().is2xxSuccessful())
 				.andReturn()
 				.getResponse()
 				.getContentAsString();
@@ -139,7 +139,7 @@ class UserControllerTestIT {
 	@SneakyThrows
 	@Test
 	void updateUser_whenEmailNotValid_thenReturnBadRequest() {
-		Long id = 0L;
+		Long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mail").name("name").build();
 
 		mockMvc.perform(patch("/users/{id}", id)
@@ -153,9 +153,9 @@ class UserControllerTestIT {
 	@SneakyThrows
 	@Test
 	void deleteUser_whenInvoked_thenReturnOk() {
-		Long id = 0L;
+		Long id = 1L;
 		mockMvc.perform(delete("/users/{id}", id))
-				.andExpect(status().isOk());
+				.andExpect(status().is2xxSuccessful());
 		verify(userService, times(1)).deleteById(id);
 	}
 }

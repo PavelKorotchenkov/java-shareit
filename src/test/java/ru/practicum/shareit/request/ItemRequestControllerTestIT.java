@@ -9,7 +9,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.practicum.shareit.item.dto.ItemForRequestDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.service.RequestService;
@@ -40,7 +40,7 @@ class ItemRequestControllerTestIT {
 	@SneakyThrows
 	@Test
 	void addRequest_whenValidDescription_thenAddNewRequest() {
-		List<ItemForRequestDto> list = Collections.emptyList();
+		List<ItemDto> list = Collections.emptyList();
 		ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
 				.description("description").build();
 		ItemRequestResponseDto expectedRequest = ItemRequestResponseDto.builder()
@@ -55,7 +55,7 @@ class ItemRequestControllerTestIT {
 						.header(X_SHARER_USER_ID, 1L)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(itemRequestCreateDto)))
-				.andExpect(status().isOk())
+				.andExpect(status().is2xxSuccessful())
 				.andReturn()
 				.getResponse()
 				.getContentAsString();
@@ -128,7 +128,7 @@ class ItemRequestControllerTestIT {
 	void getRequestById_whenInvokedWithCorrectId_thenReturnIRRDto() {
 		long userId = 1L;
 		long requestId = 1L;
-		List<ItemForRequestDto> list = Collections.emptyList();
+		List<ItemDto> list = Collections.emptyList();
 		ItemRequestResponseDto expectedItemRequest = ItemRequestResponseDto.builder()
 				.id(1L)
 				.description("description")

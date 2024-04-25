@@ -54,7 +54,7 @@ class UserServiceImplTest {
 	@Test
 	void getAll_whenInvoked_thenReturnListOfUserDto() {
 		List<UserDto> expectedList = List.of(UserDto.builder().name("name").build());
-		List<User> expectedListUser = expectedList.stream().map(UserDtoMapper::toUser).collect(Collectors.toList());
+		List<User> expectedListUser = expectedList.stream().map(UserDtoMapper::ofUserDto).collect(Collectors.toList());
 		when(userRepository.findAll()).thenReturn(expectedListUser);
 
 		List<UserDto> actualList = userService.getAll();
@@ -69,7 +69,7 @@ class UserServiceImplTest {
 		expectedUser.setId(userId);
 		when(userRepository.findById(anyLong())).thenReturn(Optional.of(expectedUser));
 
-		User actualUser = UserDtoMapper.toUser(userService.getById(userId));
+		User actualUser = UserDtoMapper.ofUserDto(userService.getById(userId));
 		assertEquals(expectedUser, actualUser);
 	}
 

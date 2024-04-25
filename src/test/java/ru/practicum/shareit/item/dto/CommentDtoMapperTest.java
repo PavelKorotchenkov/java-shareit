@@ -31,7 +31,7 @@ class CommentDtoMapperTest {
 				.created(LocalDateTime.of(2024, 1, 10, 10, 10, 10))
 				.build();
 
-		CommentResponseDto responseDto = CommentDtoMapper.toResponseDto(comment);
+		CommentResponseDto responseDto = CommentDtoMapper.toCommentResponseDto(comment);
 		JsonContent<CommentResponseDto> result = commentResponseDtoJacksonTester.write(responseDto);
 		assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
 		assertThat(result).extractingJsonPathStringValue("$.text").isEqualTo("text");
@@ -49,7 +49,7 @@ class CommentDtoMapperTest {
 				.created(null)
 				.build();
 
-		CommentResponseDto responseDto = CommentDtoMapper.toResponseDto(comment);
+		CommentResponseDto responseDto = CommentDtoMapper.toCommentResponseDto(comment);
 		JsonContent<CommentResponseDto> result = commentResponseDtoJacksonTester.write(responseDto);
 		assertThat(result).extractingJsonPathNumberValue("$.id").isEqualTo(1);
 		assertThat(result).extractingJsonPathStringValue("$.text").isEqualTo("text");
@@ -64,7 +64,7 @@ class CommentDtoMapperTest {
 				.text("text")
 				.build();
 
-		Comment comment = CommentDtoMapper.toComment(commentRequestDto);
+		Comment comment = CommentDtoMapper.ofCommentRequestDto(commentRequestDto);
 		JsonContent<Comment> result = commentJacksonTester.write(comment);
 		assertThat(result).extractingJsonPathStringValue("$.text").isEqualTo("text");
 	}

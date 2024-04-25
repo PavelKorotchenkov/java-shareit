@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.model;
 import lombok.*;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 
@@ -30,19 +29,19 @@ public class Item {
 	@Column(name = "is_available")
 	private Boolean available;
 
-	@JoinColumn(name = "user_id")
-	@ManyToOne(fetch = FetchType.EAGER)
-	private User user;
+	@JoinColumn(name = "owner_id")
+	@ManyToOne(fetch = FetchType.LAZY)
+	private User owner;
 
 	@JoinColumn(name = "request_id")
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.LAZY)
 	private ItemRequest request;
 
-	public Item(long id, String name, String description, Boolean isAvailable, User user) {
+	public Item(long id, String name, String description, Boolean isAvailable, User owner) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.available = isAvailable;
-		this.user = user;
+		this.owner = owner;
 	}
 }

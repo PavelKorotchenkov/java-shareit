@@ -43,7 +43,7 @@ class CommentRepositoryTest {
 				.id(1L)
 				.name("item")
 				.description("description")
-				.user(testUser)
+				.owner(testUser)
 				.available(true)
 				.build());
 

@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -20,6 +18,8 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,10 +61,9 @@ class BookingControllerTest {
 				.build();
 		when(bookingService.add(request)).thenReturn(response);
 
-		ResponseEntity<BookingResponseDto> responseEntity = bookingController.addBooking(X_SHARER_USER_ID, request);
+		BookingResponseDto responseEntity = bookingController.addBooking(X_SHARER_USER_ID, request);
 
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-		assertEquals(Status.WAITING, Objects.requireNonNull(responseEntity.getBody()).getStatus());
+		assertEquals(Status.WAITING, Objects.requireNonNull(responseEntity.getStatus()));
 	}
 
 	@Test
@@ -81,9 +80,8 @@ class BookingControllerTest {
 				.build();
 		when(bookingService.approve(X_SHARER_USER_ID, bookingId, approved)).thenReturn(response);
 
-		ResponseEntity<BookingResponseDto> responseEntity = bookingController.approve(X_SHARER_USER_ID, bookingId, approved);
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-		assertEquals(Status.APPROVED, Objects.requireNonNull(responseEntity.getBody()).getStatus());
+		BookingResponseDto responseEntity = bookingController.approve(X_SHARER_USER_ID, bookingId, approved);
+		assertEquals(Status.APPROVED, Objects.requireNonNull(responseEntity.getStatus()));
 	}
 
 	@Test
@@ -100,27 +98,33 @@ class BookingControllerTest {
 				.build();
 		when(bookingService.approve(X_SHARER_USER_ID, bookingId, approved)).thenReturn(response);
 
-		ResponseEntity<BookingResponseDto> responseEntity = bookingController.approve(X_SHARER_USER_ID, bookingId, approved);
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-		assertEquals(Status.REJECTED, Objects.requireNonNull(responseEntity.getBody()).getStatus());
+		BookingResponseDto responseEntity = bookingController.approve(X_SHARER_USER_ID, bookingId, approved);
+		assertEquals(Status.REJECTED, Objects.requireNonNull(responseEntity.getStatus()));
 	}
 
 	@Test
-	void getBookingInfoById_whenInvoked_thenReturnStatusOk() {
+	void getBookingInfoById_whenInvoked_thenReturnBooking() {
 		long bookingId = 1L;
-		ResponseEntity<BookingResponseDto> responseEntity = bookingController.getBookingInfoById(X_SHARER_USER_ID, bookingId);
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+		long userId = 1L;
+		BookingResponseDto expectedBookingResponseDto = BookingResponseDto.builder().id(1L).build();
+		when(bookingService.getInfoById(userId, bookingId)).thenReturn(expectedBookingResponseDto);
+		BookingResponseDto responseEntity = bookingController.getBookingInfoById(X_SHARER_USER_ID, bookingId);
+		assertEquals(expectedBookingResponseDto.getId(), responseEntity.getId());
 	}
 
 	@Test
-	void getAllBookings_whenInvoked_thenReturnStatusOk() {
-		ResponseEntity<List<BookingResponseDto>> responseEntity = bookingController.getAllBookings(X_SHARER_USER_ID, "ALL", 0, 1);
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+	void getAllBookings_whenInvoked_thenReturnList() {
+		List<BookingResponseDto> expectedBookingResponseDtoList = List.of(BookingResponseDto.builder().id(1L).build());
+		when(bookingService.getAllBookings(anyLong(), any(), any())).thenReturn(expectedBookingResponseDtoList);
+		List<BookingResponseDto> responseEntity = bookingController.getAllBookings(X_SHARER_USER_ID, "ALL", 0, 1);
+		assertEquals(expectedBookingResponseDtoList.get(0).getId(), responseEntity.get(0).getId());
 	}
 
 	@Test
-	void getAllOwnerBookings() {
-		ResponseEntity<List<BookingResponseDto>> responseEntity = bookingController.getAllOwnerBookings(X_SHARER_USER_ID, "ALL", 0, 1);
-		assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+	void getAllOwnerBookings_whenInvoked_thenReturnList() {
+		List<BookingResponseDto> expectedBookingResponseDtoList = List.of(BookingResponseDto.builder().id(1L).build());
+		when(bookingService.getAllOwnerBookings(anyLong(), any(), any())).thenReturn(expectedBookingResponseDtoList);
+		List<BookingResponseDto> responseEntity = bookingController.getAllOwnerBookings(X_SHARER_USER_ID, "ALL", 0, 1);
+		assertEquals(expectedBookingResponseDtoList.get(0).getId(), responseEntity.get(0).getId());
 	}
 }

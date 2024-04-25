@@ -53,7 +53,7 @@ class BookingRepositoryTest {
 		testItem = itemRepository.save(Item.builder()
 				.name("item")
 				.description("description")
-				.user(testOwnerUser)
+				.owner(testOwnerUser)
 				.available(true)
 				.build());
 	}
@@ -158,7 +158,7 @@ class BookingRepositoryTest {
 				.item(testItem).booker(testOwnerUser).status(Status.APPROVED).build();
 		Pageable pageable = PageRequest.of(0, 1);
 		bookingRepository.save(booking);
-		Page<Booking> bookingPage = bookingRepository.findByItemUserIdAndStatus(testOwnerUser.getId(), Status.APPROVED, pageable);
+		Page<Booking> bookingPage = bookingRepository.findByItemOwnerIdAndStatus(testOwnerUser.getId(), Status.APPROVED, pageable);
 		assertEquals(1, bookingPage.getTotalElements());
 		assertEquals(booking, bookingPage.getContent().get(0));
 	}
@@ -177,7 +177,7 @@ class BookingRepositoryTest {
 		Pageable pageable = PageRequest.of(0, 2);
 		bookingRepository.save(bookingEnded);
 		bookingRepository.save(bookingCurrent);
-		Page<Booking> bookingPage = bookingRepository.findByItemUserIdAndEndDateBefore(testOwnerUser.getId(), testTime, pageable);
+		Page<Booking> bookingPage = bookingRepository.findByItemOwnerIdAndEndDateBefore(testOwnerUser.getId(), testTime, pageable);
 		assertEquals(1, bookingPage.getTotalElements());
 		assertEquals(bookingEnded, bookingPage.getContent().get(0));
 	}
@@ -196,7 +196,7 @@ class BookingRepositoryTest {
 		Pageable pageable = PageRequest.of(0, 2);
 		bookingRepository.save(bookingStartTomorrow);
 		bookingRepository.save(bookingCurrent);
-		Page<Booking> bookingPage = bookingRepository.findByItemUserIdAndStartDateAfter(testOwnerUser.getId(), testTime, pageable);
+		Page<Booking> bookingPage = bookingRepository.findByItemOwnerIdAndStartDateAfter(testOwnerUser.getId(), testTime, pageable);
 		assertEquals(1, bookingPage.getTotalElements());
 		assertEquals(bookingStartTomorrow, bookingPage.getContent().get(0));
 	}
@@ -220,7 +220,7 @@ class BookingRepositoryTest {
 		bookingRepository.save(bookingCurrent);
 		bookingRepository.save(bookingPast);
 		bookingRepository.save(bookingFuture);
-		Page<Booking> bookingPage = bookingRepository.findByItemUserIdAndStartDateBeforeAndEndDateAfter(testOwnerUser.getId(), testTime, testTime, pageable);
+		Page<Booking> bookingPage = bookingRepository.findByItemOwnerIdAndStartDateBeforeAndEndDateAfter(testOwnerUser.getId(), testTime, testTime, pageable);
 		assertEquals(1, bookingPage.getTotalElements());
 		assertEquals(bookingCurrent, bookingPage.getContent().get(0));
 	}
@@ -247,7 +247,7 @@ class BookingRepositoryTest {
 		bookingRepository.save(bookingThird);
 
 		Booking booking =
-				bookingRepository.findTop1ByItemUserIdAndStartDateBeforeAndStatusIn(testOwnerUser.getId(),
+				bookingRepository.findTop1ByItemOwnerIdAndStartDateBeforeAndStatusIn(testOwnerUser.getId(),
 						testTime, List.of(Status.APPROVED), Sort.by(Sort.Direction.DESC, "StartDate"));
 		assertEquals(bookingThird.getId(), booking.getId());
 	}
@@ -274,7 +274,7 @@ class BookingRepositoryTest {
 		bookingRepository.save(bookingThird);
 
 		Booking booking =
-				bookingRepository.findTop1ByItemUserIdAndStartDateAfterAndStatusIn(testOwnerUser.getId(),
+				bookingRepository.findTop1ByItemOwnerIdAndStartDateAfterAndStatusIn(testOwnerUser.getId(),
 						testTime, List.of(Status.APPROVED), Sort.by(Sort.Direction.ASC, "StartDate"));
 		assertEquals(bookingFirst.getId(), booking.getId());
 	}
@@ -295,19 +295,18 @@ class BookingRepositoryTest {
 				.item(testItem).booker(testOwnerUser).status(Status.APPROVED).build();
 
 		LocalDateTime testTime = LocalDateTime.now();
-		Pageable pageable = PageRequest.of(0, 3);
 
 		bookingRepository.save(bookingFirst);
 		bookingRepository.save(bookingSecond);
 		bookingRepository.save(bookingThird);
 
-		Page<Booking> bookingPage =
+		List<Booking> bookings =
 				bookingRepository.findByItemIdAndEndDateBeforeOrderByEndDateDesc(Set.of(testItem.getId()),
-						testTime, pageable);
-		assertEquals(3, bookingPage.getTotalElements());
-		assertEquals(bookingThird, bookingPage.getContent().get(0));
-		assertEquals(bookingSecond, bookingPage.getContent().get(1));
-		assertEquals(bookingFirst, bookingPage.getContent().get(2));
+						testTime);
+		assertEquals(3, bookings.size());
+		assertEquals(bookingThird, bookings.get(0));
+		assertEquals(bookingSecond, bookings.get(1));
+		assertEquals(bookingFirst, bookings.get(2));
 	}
 
 	@Test
@@ -326,19 +325,18 @@ class BookingRepositoryTest {
 				.item(testItem).booker(testOwnerUser).status(Status.APPROVED).build();
 
 		LocalDateTime testTime = LocalDateTime.now();
-		Pageable pageable = PageRequest.of(0, 3);
 
 		bookingRepository.save(bookingFirst);
 		bookingRepository.save(bookingSecond);
 		bookingRepository.save(bookingThird);
 
-		Page<Booking> bookingPage =
+		List<Booking> bookings =
 				bookingRepository.findByItemIdAndStartDateAfterOrderByStartDateAsc(Set.of(testItem.getId()),
-						testTime, pageable);
-		assertEquals(3, bookingPage.getTotalElements());
-		assertEquals(bookingFirst, bookingPage.getContent().get(0));
-		assertEquals(bookingSecond, bookingPage.getContent().get(1));
-		assertEquals(bookingThird, bookingPage.getContent().get(2));
+						testTime);
+		assertEquals(3, bookings.size());
+		assertEquals(bookingFirst, bookings.get(0));
+		assertEquals(bookingSecond, bookings.get(1));
+		assertEquals(bookingThird, bookings.get(2));
 	}
 
 	@Test
@@ -399,7 +397,7 @@ class BookingRepositoryTest {
 		bookingRepository.save(bookingThird);
 
 		Page<Booking> bookingPage =
-				bookingRepository.findByItemUserId(testOwnerUser.getId(), pageable);
+				bookingRepository.findByItemOwnerId(testOwnerUser.getId(), pageable);
 		assertEquals(3, bookingPage.getTotalElements());
 		assertEquals(bookingFirst, bookingPage.getContent().get(0));
 		assertEquals(bookingSecond, bookingPage.getContent().get(1));

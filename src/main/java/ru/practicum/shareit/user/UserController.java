@@ -2,7 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -21,39 +21,41 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping
-	public ResponseEntity<UserDto> saveNewUser(@Valid @RequestBody UserCreateDto userCreateDto) {
+	@ResponseStatus(HttpStatus.CREATED)
+	public UserDto saveNewUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 		log.info("Получен запрос на добавление пользователя: {}", userCreateDto);
 		UserDto savedUser = userService.save(userCreateDto);
 		log.info("Отработан запрос на добавление пользователя: {}", savedUser);
-		return ResponseEntity.ok(savedUser);
+		return savedUser;
 	}
 
 	@GetMapping
-	public ResponseEntity<List<UserDto>> getAllUsers() {
+	public List<UserDto> getAllUsers() {
 		log.info("Получен запрос на получение всех пользователей");
 		List<UserDto> allUsersDto = userService.getAll();
 		log.info("Отработан запрос на получение всех пользователей");
-		return ResponseEntity.ok(allUsersDto);
+		return allUsersDto;
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+	public UserDto getUserById(@PathVariable Long id) {
 		log.info("Получен запрос на получение пользователя с id: {}", id);
 		UserDto userById = userService.getById(id);
 		log.info("Отработан запрос на получение пользователя с id: {}", id);
-		return ResponseEntity.ok(userById);
+		return userById;
 	}
 
 	@PatchMapping("/{id}")
-	public ResponseEntity<UserDto> updateUser(@PathVariable Long id,
-											  @Valid @RequestBody UserUpdateDto userUpdateDto) {
+	public UserDto updateUser(@PathVariable Long id,
+							  @Valid @RequestBody UserUpdateDto userUpdateDto) {
 		log.info("Получен запрос на обновление пользователя: {}, id: {}", userUpdateDto, id);
 		UserDto updatedUser = userService.update(id, userUpdateDto);
 		log.info("Отработан запрос на обновление пользователя: {}, id: {}", updatedUser, id);
-		return ResponseEntity.ok(updatedUser);
+		return updatedUser;
 	}
 
 	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteUser(@PathVariable Long id) {
 		log.info("Получен запрос на удаление пользователя с id: {}", id);
 		userService.deleteById(id);

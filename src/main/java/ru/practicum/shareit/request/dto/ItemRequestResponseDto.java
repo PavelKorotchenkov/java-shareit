@@ -4,9 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import ru.practicum.shareit.item.dto.ItemForRequestDto;
+import ru.practicum.shareit.item.dto.ItemDto;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Builder
@@ -15,8 +14,7 @@ import java.util.List;
 @ToString
 public class ItemRequestResponseDto {
 	private Long id;
-	@NotEmpty
 	private String description;
 	private String created;
-	private List<ItemForRequestDto> items;
+	private List<ItemDto> items;
 }

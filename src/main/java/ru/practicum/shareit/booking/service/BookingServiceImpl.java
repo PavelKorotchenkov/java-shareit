@@ -27,7 +27,6 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,7 +42,7 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	public BookingResponseDto add(BookingRequestDto bookingRequestDto) {
 		Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена."));
-		if (bookingRequestDto.getBookerId() == item.getUser().getId()) {
+		if (bookingRequestDto.getBookerId() == item.getOwner().getId()) {
 			throw new NotFoundException("Вы не можете забронировать свою вещь.");
 		}
 
@@ -51,7 +50,7 @@ public class BookingServiceImpl implements BookingService {
 			throw new NotAvailableException("Вещь недоступна для бронирования.");
 		}
 
-		Booking booking = BookingDtoMapper.toBooking(bookingRequestDto);
+		Booking booking = BookingDtoMapper.ofBookingRequestDto(bookingRequestDto);
 
 		if (booking.getStartDate() == null ||
 				booking.getEndDate() == null ||
@@ -64,22 +63,22 @@ public class BookingServiceImpl implements BookingService {
 
 		booking.setStatus(Status.WAITING);
 		booking.setItem(item);
-		booking.setBooker(UserDtoMapper.toUser(userService.getById(bookingRequestDto.getBookerId())));
+		booking.setBooker(UserDtoMapper.ofUserDto(userService.getById(bookingRequestDto.getBookerId())));
 
-		return BookingDtoMapper.toDto(bookingRepository.save(booking));
+		return BookingDtoMapper.toBookingResponseDto(bookingRepository.save(booking));
 	}
 
 	@Override
 	public BookingResponseDto approve(long userId, long bookingId, boolean status) {
 		UserDto userDto = userService.getById(userId);
 		Booking booking = getBooking(bookingId);
-		if (booking.getItem().getUser().getId() != userDto.getId()) {
+		if (booking.getItem().getOwner().getId() != userDto.getId()) {
 			throw new NotFoundException("У вас нет такого бронирования.");
 		}
 		if (booking.getStatus().equals(Status.APPROVED)) {
 			throw new NotAvailableException("Вы не можете менять статус у подтвержденного бронирования.");
 		}
-		Item item = ItemDtoMapper.toItem(itemService.getById(booking.getItem().getId(), userId));
+		Item item = ItemDtoMapper.ofItemWithFullInfoDto(itemService.getById(booking.getItem().getId(), userId));
 		if (!status) {
 			booking.setStatus(Status.REJECTED);
 		} else {
@@ -89,16 +88,17 @@ public class BookingServiceImpl implements BookingService {
 		ItemUpdateDto itemUpdateDto = ItemDtoMapper.toItemUpdateDto(item);
 		itemUpdateDto.setOwnerId(userId);
 		itemService.update(itemUpdateDto);
-		return BookingDtoMapper.toDto(bookingRepository.save(booking));
+		return BookingDtoMapper.toBookingResponseDto(bookingRepository.save(booking));
 	}
 
 	@Override
 	public BookingResponseDto getInfoById(long userId, long bookingId) {
 		UserDto userDto = userService.getById(userId);
-		BookingResponseDto bookingResponseDto = BookingDtoMapper.toDtoItemOwner(getBooking(bookingId));
-		if (bookingResponseDto.getBooker().getId() != userDto.getId() && bookingResponseDto.getItem().getOwnerId() != userDto.getId()) {
+		Booking booking = getBooking(bookingId);
+		if (booking.getBooker().getId() != userDto.getId() && booking.getItem().getOwner().getId() != userDto.getId()) {
 			throw new NotFoundException("У вас нет такого бронирования");
 		}
+		BookingResponseDto bookingResponseDto = BookingDtoMapper.toBookingResponseDto(getBooking(bookingId));
 		return bookingResponseDto;
 	}
 
@@ -109,15 +109,15 @@ public class BookingServiceImpl implements BookingService {
 		LocalDateTime date = LocalDateTime.now();
 		Pageable sortByStartDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), byStartDateDesc);
 		if (state.equals(State.ALL)) {
-			result = getCollect(bookingRepository.findByBookerId(booker, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerId(booker, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.PAST)) {
-			result = getCollect(bookingRepository.findByBookerIdAndEndDateBefore(booker, date, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndEndDateBefore(booker, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.CURRENT)) {
-			result = getCollect(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfter(booker, date, date, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfter(booker, date, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.FUTURE)) {
-			result = getCollect(bookingRepository.findByBookerIdAndStartDateAfter(booker, date, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndStartDateAfter(booker, date, sortByStartDateDesc).getContent());
 		} else {
-			result = getCollect(bookingRepository.findByBookerIdAndStatus(booker, Status.valueOf(state.name()), sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndStatus(booker, Status.valueOf(state.name()), sortByStartDateDesc).getContent());
 		}
 
 		return result;
@@ -130,25 +130,18 @@ public class BookingServiceImpl implements BookingService {
 		LocalDateTime date = LocalDateTime.now();
 		Pageable sortByStartDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), byStartDateDesc);
 		if (state.equals(State.ALL)) {
-			result = getCollect(bookingRepository.findByItemUserId(ownerId, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerId(ownerId, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.PAST)) {
-			result = getCollect(bookingRepository.findByItemUserIdAndEndDateBefore(ownerId, date, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndEndDateBefore(ownerId, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.CURRENT)) {
-			result = getCollect(bookingRepository.findByItemUserIdAndStartDateBeforeAndEndDateAfter(ownerId, date, date, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndStartDateBeforeAndEndDateAfter(ownerId, date, date, sortByStartDateDesc).getContent());
 		} else if (state.equals(State.FUTURE)) {
-			result = getCollect(bookingRepository.findByItemUserIdAndStartDateAfter(ownerId, date, sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndStartDateAfter(ownerId, date, sortByStartDateDesc).getContent());
 		} else {
-			result = getCollect(bookingRepository.findByItemUserIdAndStatus(ownerId, Status.valueOf(state.name()), sortByStartDateDesc).getContent());
+			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndStatus(ownerId, Status.valueOf(state.name()), sortByStartDateDesc).getContent());
 		}
 
 		return result;
-	}
-
-	private List<BookingResponseDto> getCollect(List<Booking> bookingRepository) {
-		return bookingRepository
-				.stream()
-				.map(BookingDtoMapper::toDto)
-				.collect(Collectors.toList());
 	}
 
 	private Booking getBooking(Long id) {

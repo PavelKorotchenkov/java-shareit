@@ -38,25 +38,25 @@ class ItemRepositoryTest {
 		testItemFirst = itemRepository.save(Item.builder()
 				.name("item")
 				.description("description")
-				.user(testUser)
+				.owner(testUser)
 				.available(true)
 				.build());
 
 		testItemSecond = itemRepository.save(Item.builder()
 				.name("name")
 				.description("item")
-				.user(testUser)
+				.owner(testUser)
 				.available(true)
 				.build());
 	}
 
 	@Test
 	void findByUserId() {
-		List<Item> items = itemRepository.findByUserId(testUser.getId());
+		List<Item> items = itemRepository.findByOwnerId(testUser.getId());
 		assertEquals("item", items.get(0).getName());
 		assertEquals("description", items.get(0).getDescription());
 		assertTrue(items.get(0).getAvailable());
-		assertEquals(testUser, items.get(0).getUser());
+		assertEquals(testUser, items.get(0).getOwner());
 
 	}
 

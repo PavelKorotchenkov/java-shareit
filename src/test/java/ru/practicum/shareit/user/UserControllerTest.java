@@ -6,8 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
@@ -41,11 +39,10 @@ class UserControllerTest {
 				.name("name")
 				.build());
 
-		ResponseEntity<UserDto> response = userController.saveNewUser(userToSave);
+		UserDto response = userController.saveNewUser(userToSave);
 
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(userToSave.getEmail(), Objects.requireNonNull(response.getBody()).getEmail());
-		assertEquals(userToSave.getName(), Objects.requireNonNull(response.getBody()).getName());
+		assertEquals(userToSave.getEmail(), Objects.requireNonNull(response).getEmail());
+		assertEquals(userToSave.getName(), Objects.requireNonNull(response).getName());
 	}
 
 	@SneakyThrows
@@ -54,10 +51,9 @@ class UserControllerTest {
 		List<UserDto> expectedUsers = List.of(UserDto.builder().build());
 		when(userService.getAll()).thenReturn(expectedUsers);
 
-		ResponseEntity<List<UserDto>> response = userController.getAllUsers();
+		List<UserDto> response = userController.getAllUsers();
 
-		assertEquals(HttpStatus.OK, response.getStatusCode());
-		assertEquals(expectedUsers, response.getBody());
+		assertEquals(expectedUsers, response);
 	}
 
 	@Test
@@ -67,10 +63,9 @@ class UserControllerTest {
 
 		when(userService.getById(userId)).thenReturn(expectedUser);
 
-		ResponseEntity<UserDto> actualUser = userController.getUserById(userId);
+		UserDto actualUser = userController.getUserById(userId);
 
-		assertEquals(HttpStatus.OK, actualUser.getStatusCode());
-		assertEquals(expectedUser, actualUser.getBody());
+		assertEquals(expectedUser, actualUser);
 	}
 
 	@Test
@@ -89,9 +84,8 @@ class UserControllerTest {
 
 		when(userService.update(userId, userToUpdate)).thenReturn(updatedUser);
 
-		ResponseEntity<UserDto> actualUser = userController.updateUser(userId, userToUpdate);
-		assertEquals(HttpStatus.OK, actualUser.getStatusCode());
-		assertEquals(updatedUser, actualUser.getBody());
+		UserDto actualUser = userController.updateUser(userId, userToUpdate);
+		assertEquals(updatedUser, actualUser);
 	}
 
 	@Test

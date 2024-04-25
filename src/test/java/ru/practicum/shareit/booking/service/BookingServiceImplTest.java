@@ -62,7 +62,7 @@ class BookingServiceImplTest {
 	void add_whenAllValidFields_thenReturnBooking() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		LocalDateTime start = LocalDateTime.now().plusDays(1);
 		LocalDateTime end = LocalDateTime.now().plusDays(2);
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
@@ -74,10 +74,10 @@ class BookingServiceImplTest {
 				.itemId(item.getId())
 				.bookerId(booker.getId())
 				.build();
-		Booking bookingEntity = BookingDtoMapper.toBooking(bookingToSave);
+		Booking bookingEntity = Booking.builder().id(1L).startDate(start).endDate(end).build();
 		when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
-		when(userService.getById(anyLong())).thenReturn(UserDtoMapper.toDto(booker));
-		when(bookingRepository.save(bookingEntity)).thenReturn(bookingEntity);
+		when(userService.getById(anyLong())).thenReturn(UserDtoMapper.toUserDto(booker));
+		when(bookingRepository.save(any())).thenReturn(bookingEntity);
 
 		BookingResponseDto actualBooking = bookingService.add(bookingToSave);
 		assertEquals(formattedDateTimeStart, actualBooking.getStart());
@@ -87,7 +87,7 @@ class BookingServiceImplTest {
 	@Test
 	void add_whenBookerIdEqualsItemOwnerId_thenReturnNotFoundException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		BookingRequestDto bookingToSave = BookingRequestDto.builder()
 				.start("2024-04-23T10:10:10")
 				.end("2024-04-24T10:10:10")
@@ -103,7 +103,7 @@ class BookingServiceImplTest {
 	void add_whenItemNotAvailable_thenReturnNotAvailableException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(false).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(false).owner(owner).build();
 		BookingRequestDto bookingToSave = BookingRequestDto.builder()
 				.start("2024-04-23T10:10:10")
 				.end("2024-04-24T10:10:10")
@@ -119,7 +119,7 @@ class BookingServiceImplTest {
 	void add_whenStartBookingTimeIsNull_thenReturnBookingDateException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		BookingRequestDto bookingToSave = BookingRequestDto.builder()
 				.start(null)
 				.end("2024-04-24T10:10:10")
@@ -135,7 +135,7 @@ class BookingServiceImplTest {
 	void add_whenStartDateAfterEndDate_thenReturnBookingDateException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		BookingRequestDto bookingToSave = BookingRequestDto.builder()
 				.start("2024-04-23T10:10:10")
 				.end("2024-03-24T10:10:10")
@@ -151,7 +151,7 @@ class BookingServiceImplTest {
 	void approve_whenOwnerApprovedBooking_thenReturnBookingResponseWithApprovedStatus() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		ItemWithFullInfoDto itemWithFullInfoDto = ItemWithFullInfoDto.builder()
 				.id(1L).name("item").description("description")
 				.available(true).lastBooking(null).nextBooking(null).comments(null).requestId(null).build();
@@ -160,7 +160,7 @@ class BookingServiceImplTest {
 				.endDate(LocalDateTime.of(2024, 5, 23, 10, 10, 10))
 				.item(item).booker(booker).status(Status.WAITING).build();
 
-		when(userService.getById(owner.getId())).thenReturn(UserDtoMapper.toDto(owner));
+		when(userService.getById(owner.getId())).thenReturn(UserDtoMapper.toUserDto(owner));
 		when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
 		when(itemService.getById(item.getId(), owner.getId())).thenReturn(itemWithFullInfoDto);
 		when(itemService.update(any())).thenReturn(ItemDto.builder().build());
@@ -175,7 +175,7 @@ class BookingServiceImplTest {
 	void approve_whenOwnerDidNotApproveBooking_thenReturnBookingResponseWithRejectedStatus() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		ItemWithFullInfoDto itemWithFullInfoDto = ItemWithFullInfoDto.builder()
 				.id(1L).name("item").description("description")
 				.available(true).lastBooking(null).nextBooking(null).comments(null).requestId(null).build();
@@ -184,7 +184,7 @@ class BookingServiceImplTest {
 				.endDate(LocalDateTime.of(2024, 5, 23, 10, 10, 10))
 				.item(item).booker(booker).status(Status.WAITING).build();
 
-		when(userService.getById(owner.getId())).thenReturn(UserDtoMapper.toDto(owner));
+		when(userService.getById(owner.getId())).thenReturn(UserDtoMapper.toUserDto(owner));
 		when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
 		when(itemService.getById(item.getId(), owner.getId())).thenReturn(itemWithFullInfoDto);
 		when(itemService.update(any())).thenReturn(ItemDto.builder().build());
@@ -199,13 +199,13 @@ class BookingServiceImplTest {
 	void approve_whenOwnerIdAndUserIdNotEqual_thenThrowNotFoundException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingEntity = Booking.builder().id(1L)
 				.startDate(LocalDateTime.of(2024, 4, 23, 10, 10, 10))
 				.endDate(LocalDateTime.of(2024, 5, 23, 10, 10, 10))
 				.item(item).booker(owner).status(Status.WAITING).build();
 
-		when(userService.getById(booker.getId())).thenReturn(UserDtoMapper.toDto(booker));
+		when(userService.getById(booker.getId())).thenReturn(UserDtoMapper.toUserDto(booker));
 		when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
 
 		assertThrows(NotFoundException.class,
@@ -215,13 +215,13 @@ class BookingServiceImplTest {
 	@Test
 	void approve_whenStatusALreadyApproved_thenThrowNotAvailableException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingEntity = Booking.builder().id(1L)
 				.startDate(LocalDateTime.of(2024, 4, 23, 10, 10, 10))
 				.endDate(LocalDateTime.of(2024, 5, 23, 10, 10, 10))
 				.item(item).booker(owner).status(Status.APPROVED).build();
 
-		when(userService.getById(owner.getId())).thenReturn(UserDtoMapper.toDto(owner));
+		when(userService.getById(owner.getId())).thenReturn(UserDtoMapper.toUserDto(owner));
 		when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
 
 		assertThrows(NotAvailableException.class,
@@ -232,13 +232,13 @@ class BookingServiceImplTest {
 	void getInfoById_whenValidBookerIdAndItemOwnerId_thenReturnBookingResponseDto() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingEntity = Booking.builder().id(1L)
 				.startDate(LocalDateTime.of(2024, 4, 23, 10, 10, 10))
 				.endDate(LocalDateTime.of(2024, 5, 23, 10, 10, 10))
 				.item(item).booker(booker).status(Status.APPROVED).build();
-		BookingResponseDto expectedBookingResponseDto = BookingDtoMapper.toDtoItemOwner(bookingEntity);
-		when(userService.getById(booker.getId())).thenReturn(UserDtoMapper.toDto(booker));
+		BookingResponseDto expectedBookingResponseDto = BookingDtoMapper.toBookingResponseDto(bookingEntity);
+		when(userService.getById(booker.getId())).thenReturn(UserDtoMapper.toUserDto(booker));
 		when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
 
 		BookingResponseDto actualBookingResponseDto = bookingService.getInfoById(booker.getId(), bookingEntity.getId());
@@ -249,13 +249,13 @@ class BookingServiceImplTest {
 	void getInfoById_whenNotValidBookerIdAndOwnerId_thenThrowNotFoundException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		User someone = User.builder().id(3L).name("someone").email("sm@mail.ru").build();
 		Booking bookingEntity = Booking.builder().id(1L)
 				.startDate(LocalDateTime.of(2024, 4, 23, 10, 10, 10))
 				.endDate(LocalDateTime.of(2024, 5, 23, 10, 10, 10))
 				.item(item).booker(booker).status(Status.APPROVED).build();
-		when(userService.getById(any())).thenReturn(UserDtoMapper.toDto(someone));
+		when(userService.getById(any())).thenReturn(UserDtoMapper.toUserDto(someone));
 		when(bookingRepository.findById(bookingEntity.getId())).thenReturn(Optional.of(bookingEntity));
 
 		assertThrows(NotFoundException.class,
@@ -266,7 +266,7 @@ class BookingServiceImplTest {
 	void getAllBookings_whenStateAll_thenReturnAllBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
 				.startDate(LocalDateTime.now().minusDays(3))
@@ -301,7 +301,7 @@ class BookingServiceImplTest {
 	void getAllBookings_whenStatePast_thenReturnPastBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
 				.startDate(LocalDateTime.now().minusDays(3))
@@ -323,7 +323,7 @@ class BookingServiceImplTest {
 	void getAllBookings_whenStateCurrent_thenReturnCurrentBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		LocalDateTime now = LocalDateTime.now();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
@@ -347,7 +347,7 @@ class BookingServiceImplTest {
 	void getAllBookings_whenStateFuture_thenReturnFutureBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		LocalDateTime now = LocalDateTime.now();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
@@ -370,7 +370,7 @@ class BookingServiceImplTest {
 	void getAllBookings_whenStateWaiting_thenReturnWaitingBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		LocalDateTime now = LocalDateTime.now();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
@@ -389,7 +389,7 @@ class BookingServiceImplTest {
 	@Test
 	void getAllOwnerBookings_whenStateAll_thenReturnAllOwnerBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
 				.startDate(LocalDateTime.now().minusDays(3))
@@ -401,7 +401,7 @@ class BookingServiceImplTest {
 				.endDate(LocalDateTime.now().plusDays(2))
 				.item(item).booker(owner).status(Status.WAITING).build();
 		Pageable page = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "StartDate"));
-		when(bookingRepository.findByItemUserId(owner.getId(), page))
+		when(bookingRepository.findByItemOwnerId(owner.getId(), page))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst, bookingSecond), page, 2));
 
 		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), State.ALL, page);
@@ -414,7 +414,7 @@ class BookingServiceImplTest {
 	@Test
 	void getAllOwnerBookings_whenStatePast_thenReturnPastOwnerBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
 				.startDate(LocalDateTime.of(2024, 4, 23, 10, 10, 10))
@@ -426,7 +426,7 @@ class BookingServiceImplTest {
 				.endDate(LocalDateTime.now().plusDays(2))
 				.item(item).booker(owner).status(Status.WAITING).build();
 		Pageable page = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "StartDate"));
-		when(bookingRepository.findByItemUserIdAndEndDateBefore(
+		when(bookingRepository.findByItemOwnerIdAndEndDateBefore(
 				eq(owner.getId()),
 				ArgumentMatchers.any(LocalDateTime.class),
 				eq(page)))
@@ -441,7 +441,7 @@ class BookingServiceImplTest {
 	@Test
 	void getAllOwnerBookings_whenStateCurrent_thenReturnCurrentOwnerBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
 				.startDate(LocalDateTime.of(2024, 1, 23, 10, 10, 10))
@@ -453,7 +453,7 @@ class BookingServiceImplTest {
 				.endDate(LocalDateTime.now().plusDays(2))
 				.item(item).booker(owner).status(Status.APPROVED).build();
 		Pageable page = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "StartDate"));
-		when(bookingRepository.findByItemUserIdAndStartDateBeforeAndEndDateAfter(
+		when(bookingRepository.findByItemOwnerIdAndStartDateBeforeAndEndDateAfter(
 				eq(owner.getId()),
 				ArgumentMatchers.any(LocalDateTime.class),
 				ArgumentMatchers.any(LocalDateTime.class),
@@ -469,7 +469,7 @@ class BookingServiceImplTest {
 	@Test
 	void getAllOwnerBookings_whenStateFuture_thenReturnFutureOwnerBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
 				.startDate(LocalDateTime.of(2024, 1, 23, 10, 10, 10))
@@ -481,7 +481,7 @@ class BookingServiceImplTest {
 				.endDate(LocalDateTime.now().plusDays(2))
 				.item(item).booker(owner).status(Status.APPROVED).build();
 		Pageable page = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "StartDate"));
-		when(bookingRepository.findByItemUserIdAndStartDateAfter(
+		when(bookingRepository.findByItemOwnerIdAndStartDateAfter(
 				eq(owner.getId()),
 				ArgumentMatchers.any(LocalDateTime.class),
 				eq(page)))
@@ -496,7 +496,7 @@ class BookingServiceImplTest {
 	@Test
 	void getAllOwnerBookings_whenStateApproved_thenReturnApprovedOwnerBookings() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
-		Item item = Item.builder().id(1L).name("item").description("description").available(true).user(owner).build();
+		Item item = Item.builder().id(1L).name("item").description("description").available(true).owner(owner).build();
 		Booking bookingFirst = Booking.builder()
 				.id(1L)
 				.startDate(LocalDateTime.of(2024, 1, 23, 10, 10, 10))
@@ -513,7 +513,7 @@ class BookingServiceImplTest {
 				.endDate(LocalDateTime.now().plusDays(2))
 				.item(item).booker(owner).status(Status.WAITING).build();
 		Pageable page = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "StartDate"));
-		when(bookingRepository.findByItemUserIdAndStatus(
+		when(bookingRepository.findByItemOwnerIdAndStatus(
 				eq(owner.getId()),
 				eq(Status.valueOf(State.APPROVED.name())),
 				eq(page)))

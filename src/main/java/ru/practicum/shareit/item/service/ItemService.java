@@ -12,7 +12,7 @@ public interface ItemService {
 
 	ItemWithFullInfoDto getById(long itemId, long userId);
 
-	List<ItemWithFullInfoDto> getUserItems(long ownerId, Pageable pageable);
+	List<ItemWithFullInfoDto> findByOwnerId(long ownerId, Pageable pageable);
 
 	List<ItemDto> searchBy(long userId, String text, Pageable pageable);
 

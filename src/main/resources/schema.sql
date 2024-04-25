@@ -17,9 +17,9 @@ create TABLE IF NOT EXISTS items (
     name varchar(100) NOT NULL,
     description varchar(1000),
     is_available boolean,
-    user_id BIGINT,
+    owner_id BIGINT,
     request_id BIGINT,
-    CONSTRAINT fk_items_to_users FOREIGN KEY(user_id) REFERENCES users(user_id) ON delete CASCADE,
+    CONSTRAINT fk_items_to_users FOREIGN KEY(owner_id) REFERENCES users(user_id) ON delete CASCADE,
     CONSTRAINT fk_items_to_requests FOREIGN KEY(request_id) REFERENCES requests(request_id) ON delete CASCADE
 );
 
