@@ -12,7 +12,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repo.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,15 +48,13 @@ class RequestRepositoryTest {
 		itemRequestFirst = ItemRequest.builder()
 				.description("description")
 				.created(LocalDateTime.of(2024, 3, 15, 15, 30, 0))
-				.items(new ArrayList<>())
-				.user(userOwner)
+				.requester(userOwner)
 				.build();
 
 		itemRequestSecond = ItemRequest.builder()
 				.description("description2")
 				.created(LocalDateTime.of(2024, 3, 16, 15, 30, 0))
-				.items(new ArrayList<>())
-				.user(userOwner)
+				.requester(userOwner)
 				.build();
 	}
 
@@ -78,7 +75,7 @@ class RequestRepositoryTest {
 		userRepository.save(userOwner);
 		requestRepository.save(itemRequestFirst);
 		requestRepository.save(itemRequestSecond);
-		List<ItemRequest> list = requestRepository.findByUserId(userOwner.getId(), byCreated);
+		List<ItemRequest> list = requestRepository.findByRequesterId(userOwner.getId(), byCreated);
 		assertEquals(list.size(), 2);
 		assertEquals(list.get(0).getId(), itemRequestSecond.getId());
 		assertEquals(list.get(1).getId(), itemRequestFirst.getId());
@@ -88,15 +85,15 @@ class RequestRepositoryTest {
 	void findByUserIdNot_whenSearchForItemRequestsOfOtherUsers_thenReturnListOfIRsWithOneIRWithoutIROfItsOwner() {
 		userRepository.save(userOwner);
 		userRepository.save(userLeaser);
-		itemRequestSecond.setUser(userLeaser);
+		itemRequestSecond.setRequester(userLeaser);
 		requestRepository.save(itemRequestFirst);
 		requestRepository.save(itemRequestSecond);
 		PageRequest page = PageRequest.of(0, 1).withSort(byCreated);
 
-		List<ItemRequest> list = requestRepository.findByUserIdNot(userOwner.getId(), page).getContent();
+		List<ItemRequest> list = requestRepository.findByRequesterIdNot(userOwner.getId(), page).getContent();
 		assertEquals(list.size(), 1L);
 		assertEquals(list.get(0).getId(), itemRequestSecond.getId());
-		itemRequestSecond.setUser(userOwner);
+		itemRequestSecond.setRequester(userOwner);
 	}
 
 	@AfterEach

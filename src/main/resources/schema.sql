@@ -5,15 +5,15 @@ create TABLE IF NOT EXISTS users (
 );
 
 create TABLE IF NOT EXISTS requests (
-    request_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY unique NOT NULL,
+    request_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     description varchar(1000),
     created timestamp WITHOUT TIME ZONE,
-    user_id BIGINT,
-    CONSTRAINT fk_requests_to_users FOREIGN KEY(user_id) REFERENCES users(user_id) ON delete CASCADE
+    requester_id BIGINT,
+    CONSTRAINT fk_requests_to_users FOREIGN KEY(requester_id) REFERENCES users(user_id) ON delete CASCADE
 );
 
 create TABLE IF NOT EXISTS items (
-    item_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY UNIQUE NOT NULL,
+    item_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     name varchar(100) NOT NULL,
     description varchar(1000),
     is_available boolean,
@@ -24,7 +24,7 @@ create TABLE IF NOT EXISTS items (
 );
 
 create TABLE IF NOT EXISTS bookings (
-    booking_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY UNIQUE NOT NULL,
+    booking_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     start_date timestamp without time zone,
     end_date timestamp without time zone,
     item_id BIGINT,
@@ -35,7 +35,7 @@ create TABLE IF NOT EXISTS bookings (
 );
 
 create TABLE IF NOT EXISTS comments (
-    comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY UNIQUE NOT NULL,
+    comment_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
     text varchar(1000),
     item_id BIGINT,
     author_id BIGINT,

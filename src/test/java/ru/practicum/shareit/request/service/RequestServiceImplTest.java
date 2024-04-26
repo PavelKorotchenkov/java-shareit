@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.repo.ItemRepository;
 import ru.practicum.shareit.request.dto.ItemRequestCreateDto;
 import ru.practicum.shareit.request.dto.ItemRequestDtoMapper;
 import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
@@ -36,6 +37,9 @@ class RequestServiceImplTest {
 	@Mock
 	private UserService userService;
 
+	@Mock
+	private ItemRepository itemRepository;
+
 	@InjectMocks
 	private RequestServiceImpl requestService;
 
@@ -60,7 +64,7 @@ class RequestServiceImplTest {
 		List<ItemRequest> expectedRequests = List.of(new ItemRequest());
 		expectedRequests.get(0).setDescription("description");
 		when(userService.getById(userId)).thenReturn(UserDto.builder().id(userId).build());
-		when(requestRepository.findByUserId(eq(userId), any(Sort.class))).thenReturn(expectedRequests);
+		when(requestRepository.findByRequesterId(eq(userId), any(Sort.class))).thenReturn(expectedRequests);
 
 		List<ItemRequestResponseDto> actualRequests = requestService.getRequests(userId);
 
@@ -76,7 +80,7 @@ class RequestServiceImplTest {
 		Page<ItemRequest> page = new PageImpl<>(expectedRequests);
 
 		when(userService.getById(userId)).thenReturn(UserDto.builder().id(userId).build());
-		when(requestRepository.findByUserIdNot(eq(userId), any(PageRequest.class))).thenReturn(page);
+		when(requestRepository.findByRequesterIdNot(eq(userId), any(PageRequest.class))).thenReturn(page);
 
 		List<ItemRequestResponseDto> actualRequests = requestService.getOtherRequests(userId, PageRequest.of(0, 10));
 

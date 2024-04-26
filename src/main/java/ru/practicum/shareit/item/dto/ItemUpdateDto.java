@@ -6,7 +6,6 @@ import lombok.*;
 @Setter
 @Builder
 @ToString
-@EqualsAndHashCode(of = "id")
 public class ItemUpdateDto {
 	private long id;
 	private String name;

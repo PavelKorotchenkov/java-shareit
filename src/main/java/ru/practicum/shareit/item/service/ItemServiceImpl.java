@@ -87,8 +87,6 @@ public class ItemServiceImpl implements ItemService {
 	public List<ItemWithFullInfoDto> findByOwnerId(long userId, Pageable pageable) {
 		UserDto owner = userService.getById(userId);
 
-		PageRequest page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
-
 		Map<Long, Item> itemMap = itemRepository.findByOwnerId(owner.getId())
 				.stream()
 				.collect(Collectors.toMap(Item::getId, Function.identity()));

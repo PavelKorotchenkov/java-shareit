@@ -16,4 +16,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 			"where (lower(it.name) like %?1% or lower(it.description) like %?1%) " +
 			"and it.available is true")
 	Page<Item> findByNameOrDescriptionContainingAndAvailableTrue(String text, Pageable pageable);
+
+	List<Item> findByRequestIdIsNotNull();
+
+	List<Item> findByRequestId(long requestId);
 }

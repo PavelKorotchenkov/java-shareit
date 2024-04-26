@@ -1,8 +1,5 @@
 package ru.practicum.shareit.request.dto;
 
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoMapper;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.time.format.DateTimeFormatter;
@@ -25,17 +22,13 @@ public class ItemRequestDtoMapper {
 				.created(request.getCreated() != null ? DateTimeFormatter
 						.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 						.format(request.getCreated()) : null)
-				.items(mapItemsToItemDtos(request.getItems()))
 				.build();
 	}
 
-	private static List<ItemDto> mapItemsToItemDtos(List<Item> items) {
-		List<ItemDto> dtoList = null;
-		if (items != null) {
-			dtoList = items.stream()
-					.map(ItemDtoMapper::toItemDto)
-					.collect(Collectors.toList());
-		}
-		return dtoList;
+	public static List<ItemRequestResponseDto> toItemRequestResponseDto(List<ItemRequest> requests) {
+		return requests.stream()
+				.map(ItemRequestDtoMapper::toItemRequestResponseDto)
+				.collect(Collectors.toList());
 	}
+
 }

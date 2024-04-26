@@ -14,10 +14,10 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserUpdateDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = UserController.class)
@@ -39,17 +39,15 @@ class UserControllerTestIT {
 		UserCreateDto userCreateDto = UserCreateDto.builder().name("name").email("mail@mail.ru").build();
 		UserDto userDto = UserDto.builder().id(1L).name("name").email("mail@mail.ru").build();
 
-		when(userService.save(userCreateDto)).thenReturn(userDto);
+		when(userService.save(any())).thenReturn(userDto);
 
-		String result = mockMvc.perform(post("/users")
+		mockMvc.perform(post("/users")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(userCreateDto)))
 				.andExpect(status().is2xxSuccessful())
-				.andReturn()
-				.getResponse()
-				.getContentAsString();
-
-		assertEquals(objectMapper.writeValueAsString(userDto), result);
+				.andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.name").value("name"))
+				.andExpect(jsonPath("$.email").value("mail@mail.ru"));
 	}
 
 	@SneakyThrows
@@ -124,7 +122,7 @@ class UserControllerTestIT {
 
 	@SneakyThrows
 	@Test
-	void updateUser() {
+	void updateUser_whenValidParams_thenStatusOk() {
 		long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mail@mail.ru").name("name").build();
 

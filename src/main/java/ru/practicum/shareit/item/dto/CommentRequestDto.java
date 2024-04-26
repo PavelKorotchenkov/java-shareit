@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -9,9 +12,9 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @Builder
 @ToString
-@EqualsAndHashCode(of = "text")
 public class CommentRequestDto {
-	@NotEmpty @NotBlank
+	@NotEmpty
+	@NotBlank
 	private String text;
 	private long itemId;
 	private long authorId;

@@ -9,7 +9,6 @@ import javax.validation.constraints.NotEmpty;
 @Setter
 @ToString
 @Builder
-@EqualsAndHashCode
 public class UserCreateDto {
 	@NotEmpty(message = "Имя пользователя не может быть пустым")
 	private String name;

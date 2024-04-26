@@ -15,12 +15,11 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = ItemController.class)
@@ -39,7 +38,6 @@ class ItemControllerTestIT {
 	@SneakyThrows
 	@Test
 	void addItem_whenValidItemCreateDto_thenReturnOk() {
-		long userId = 1L;
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
@@ -52,18 +50,16 @@ class ItemControllerTestIT {
 				.available(true)
 				.build();
 
-		when(itemService.add(itemCreateDtoToSave)).thenReturn(expectedResponse);
+		when(itemService.add(any())).thenReturn(expectedResponse);
 
-		String result = mockMvc.perform(post("/items")
+		mockMvc.perform(post("/items")
 						.header(X_SHARER_USER_ID, ID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
 				.andExpect(status().is2xxSuccessful())
-				.andReturn()
-				.getResponse()
-				.getContentAsString();
-
-		assertEquals(objectMapper.writeValueAsString(expectedResponse), result);
+				.andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.name").value("name"))
+				.andExpect(jsonPath("$.description").value("description"));
 	}
 
 	@SneakyThrows
@@ -121,11 +117,13 @@ class ItemControllerTestIT {
 	@Test
 	void updateItem_whenValidHeader_thenReturnStatusOkWithUpdatedItemInBody() {
 		long itemId = 1L;
+
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
 				.id(itemId)
 				.name("name upd")
 				.description("description upd")
 				.available(true)
+				.ownerId(1L)
 				.build();
 
 		ItemDto expectedResponse = ItemDto.builder()
@@ -135,19 +133,17 @@ class ItemControllerTestIT {
 				.available(true)
 				.build();
 
-		when(itemService.update(itemUpdateDto)).thenReturn(expectedResponse);
+		when(itemService.update(any())).thenReturn(expectedResponse);
 
-		String result = mockMvc.perform(patch("/items/{id}", itemId)
+		mockMvc.perform(patch("/items/{id}", itemId)
 						.header(X_SHARER_USER_ID, ID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(itemUpdateDto)))
 				.andExpect(status().isOk())
-				.andReturn()
-				.getResponse()
-				.getContentAsString();
-
-		verify(itemService, times(1)).update(itemUpdateDto);
-		assertEquals(objectMapper.writeValueAsString(expectedResponse), result);
+				.andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.name").value("name upd"))
+				.andExpect(jsonPath("$.description").value("description upd"))
+				.andExpect(jsonPath("$.available").value(true));
 	}
 
 	@SneakyThrows
@@ -181,7 +177,7 @@ class ItemControllerTestIT {
 				.available(true)
 				.build();
 
-		when(itemService.update(itemUpdateDto)).thenThrow(AccessDeniedException.class);
+		when(itemService.update(any())).thenThrow(AccessDeniedException.class);
 
 		mockMvc.perform(patch("/items/{id}", itemId)
 						.header(X_SHARER_USER_ID, 1L)
@@ -206,16 +202,13 @@ class ItemControllerTestIT {
 
 		when(itemService.getById(itemId, ID)).thenReturn(expectedItem);
 
-		String result = mockMvc.perform(get("/items/{id}", itemId)
+		mockMvc.perform(get("/items/{id}", itemId)
 						.header(X_SHARER_USER_ID, ID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString("")))
 				.andExpect(status().isOk())
-				.andReturn()
-				.getResponse()
-				.getContentAsString();
-
-		assertEquals(objectMapper.writeValueAsString(expectedItem), result);
+				.andExpect(jsonPath("$.name").value("name"))
+				.andExpect(jsonPath("$.description").value("description"));
 	}
 
 	@SneakyThrows
@@ -233,23 +226,20 @@ class ItemControllerTestIT {
 	void findAllByOwnerId_whenValidHeader_thenReturnStatusOkWithExpectedListInBody() {
 		int from = 0;
 		int size = 1;
-		List<ItemWithFullInfoDto> expectedList = Collections.emptyList();
+		List<ItemWithFullInfoDto> expectedList = List.of(ItemWithFullInfoDto.builder().id(1L).name("name").build());
 
 		Pageable page = PageRequest.of(from, size);
 		when(itemService.findByOwnerId(ID, page)).thenReturn(expectedList);
 
-		String result = mockMvc.perform(get("/items")
+		mockMvc.perform(get("/items")
 						.header(X_SHARER_USER_ID, ID)
 						.param("from", String.valueOf(from))
 						.param("size", String.valueOf(size))
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString("")))
 				.andExpect(status().isOk())
-				.andReturn()
-				.getResponse()
-				.getContentAsString();
-
-		assertEquals(objectMapper.writeValueAsString(expectedList), result);
+				.andExpect(jsonPath("$[0].id").value(1))
+				.andExpect(jsonPath("$[0].name").value("name"));
 	}
 
 	@SneakyThrows
@@ -326,18 +316,16 @@ class ItemControllerTestIT {
 				.created("2024-04-15T15:30:10")
 				.build();
 
-		when(itemService.addComment(commentToAdd)).thenReturn(expectedComment);
+		when(itemService.addComment(any())).thenReturn(expectedComment);
 
-		String result = mockMvc.perform(post("/items/{itemId}/comment", itemId)
+		mockMvc.perform(post("/items/{itemId}/comment", itemId)
 						.header(X_SHARER_USER_ID, ID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(commentToAdd)))
 				.andExpect(status().isOk())
-				.andReturn()
-				.getResponse()
-				.getContentAsString();
-
-		assertEquals(objectMapper.writeValueAsString(expectedComment), result);
+				.andExpect(jsonPath("$.text").value("comment"))
+				.andExpect(jsonPath("$.authorName").value("author"))
+				.andExpect(jsonPath("$.created").value("2024-04-15T15:30:10"));
 	}
 
 	@SneakyThrows
@@ -353,6 +341,5 @@ class ItemControllerTestIT {
 				.andExpect(status().isBadRequest());
 
 		verify(itemService, never()).addComment(any());
-
 	}
 }

@@ -149,6 +149,6 @@ class ItemControllerTest {
 				.build();
 		when(itemService.addComment(commentRequestDto)).thenReturn(expectedComment);
 		CommentResponseDto response = itemController.addComment(X_SHARER_USER_ID, itemId, commentRequestDto);
-		assertEquals(expectedComment, response);
+		assertEquals(expectedComment.getText(), response.getText());
 	}
 }

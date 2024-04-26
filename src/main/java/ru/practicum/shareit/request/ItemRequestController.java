@@ -34,9 +34,9 @@ public class ItemRequestController {
 
 	@GetMapping
 	public List<ItemRequestResponseDto> getRequests(@RequestHeader(X_SHARER_USER_ID) long userId) {
-		log.info("Получен запрос на все item request для пользователя с id: {}", userId);
+		log.info("Получен запрос на все запросы пользователя с id: {}", userId);
 		List<ItemRequestResponseDto> response = requestService.getRequests(userId);
-		log.info("Обработан запрос на все item request: {}", response);
+		log.info("Обработан запрос на все запросы пользователя: {}", response);
 		return response;
 	}
 
@@ -44,7 +44,7 @@ public class ItemRequestController {
 	public List<ItemRequestResponseDto> getOtherRequests(@RequestHeader(X_SHARER_USER_ID) long userId,
 														 @RequestParam(required = false) Integer from,
 														 @RequestParam(required = false) Integer size) {
-		log.info("Получен запрос на все item request для пользователя с id: {}", userId);
+		log.info("Получен запрос на просмотр запросов, созданных другими пользователями");
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<ItemRequestResponseDto> response = requestService.getOtherRequests(userId, page);
 		log.info("Обработан запрос на все item request: {}", response);

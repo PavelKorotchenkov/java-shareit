@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.InvalidStateException;
 import ru.practicum.shareit.util.OffsetPageRequest;
 
 import javax.validation.Valid;
@@ -60,7 +59,7 @@ public class BookingController {
 												   @RequestParam(required = false) Integer from,
 												   @RequestParam(required = false) Integer size) {
 		log.info("Получен запрос на получение всех бронирований пользователя: user id: {}, state: {}", userId, state);
-		State validState = getState(state);
+		State validState = State.getState(state);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<BookingResponseDto> allBookings = bookingService.getAllBookings(userId, validState, page);
 		log.info("Обработан запрос на получение всех бронирований пользователя: {}", allBookings);
@@ -73,20 +72,10 @@ public class BookingController {
 														@RequestParam(required = false) Integer from,
 														@RequestParam(required = false) Integer size) {
 		log.info("Получен запрос на получение всех бронирований вещей владельца: {}, {}", userId, state);
-		State validState = getState(state);
+		State validState = State.getState(state);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<BookingResponseDto> allBookings = bookingService.getAllOwnerBookings(userId, validState, page);
 		log.info("Обработан запрос на получение всех бронирований вещей владельца: {}, {}", userId, validState);
 		return allBookings;
-	}
-
-	private State getState(String state) {
-		State validState;
-		try {
-			validState = State.valueOf(state);
-		} catch (IllegalArgumentException e) {
-			throw new InvalidStateException("Unknown state: UNSUPPORTED_STATUS");
-		}
-		return validState;
 	}
 }

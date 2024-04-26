@@ -12,8 +12,8 @@ import java.util.Optional;
 public interface RequestRepository extends JpaRepository<ItemRequest, Long> {
 	Optional<ItemRequest> findById(long id);
 
-	List<ItemRequest> findByUserId(long userId, Sort sort);
+	List<ItemRequest> findByRequesterId(long userId, Sort sort);
 
-	Page<ItemRequest> findByUserIdNot(long userId, Pageable pageable);
+	Page<ItemRequest> findByRequesterIdNot(long userId, Pageable pageable);
 
 }
