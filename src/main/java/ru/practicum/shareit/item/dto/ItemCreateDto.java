@@ -20,4 +20,5 @@ public class ItemCreateDto {
 	@NotNull
 	private Boolean available;
 	private long ownerId;
+	private Long requestId;
 }

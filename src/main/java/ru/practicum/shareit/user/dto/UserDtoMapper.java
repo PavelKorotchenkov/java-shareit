@@ -3,7 +3,7 @@ package ru.practicum.shareit.user.dto;
 import ru.practicum.shareit.user.model.User;
 
 public class UserDtoMapper {
-	public static UserDto toDto(User user) {
+	public static UserDto toUserDto(User user) {
 		return UserDto.builder()
 				.id(user.getId())
 				.name(user.getName())
@@ -11,13 +11,13 @@ public class UserDtoMapper {
 				.build();
 	}
 
-	public static UserDto toDtoId(User user) {
+	public static UserDto toUserDtoId(User user) {
 		return UserDto.builder()
 				.id(user.getId())
 				.build();
 	}
 
-	public static User toUser(UserDto userDto) {
+	public static User ofUserDto(UserDto userDto) {
 		return User.builder()
 				.id(userDto.getId())
 				.name(userDto.getName())
@@ -25,14 +25,14 @@ public class UserDtoMapper {
 				.build();
 	}
 
-	public static User toUserCreate(UserCreateDto userCreateDto) {
+	public static User ofUserCreateDto(UserCreateDto userCreateDto) {
 		return User.builder()
 				.name(userCreateDto.getName())
 				.email(userCreateDto.getEmail())
 				.build();
 	}
 
-	public static User toUserUpdate(UserUpdateDto userUpdateDto) {
+	public static User ofUserUpdateDto(UserUpdateDto userUpdateDto) {
 		return User.builder()
 				.name(userUpdateDto.getName())
 				.email(userUpdateDto.getEmail())

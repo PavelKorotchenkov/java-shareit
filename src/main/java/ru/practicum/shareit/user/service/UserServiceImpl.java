@@ -11,7 +11,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repo.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,27 +21,30 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserDto save(UserCreateDto userCreateDto) {
-		User user = UserDtoMapper.toUserCreate(userCreateDto);
-		return UserDtoMapper.toDto(userRepository.save(user));
+		User user = UserDtoMapper.ofUserCreateDto(userCreateDto);
+		return UserDtoMapper.toUserDto(userRepository.save(user));
 	}
 
 	@Override
 	public List<UserDto> getAll() {
 		return userRepository.findAll()
 				.stream()
-				.map(UserDtoMapper::toDto)
+				.map(UserDtoMapper::toUserDto)
 				.collect(Collectors.toList());
 	}
 
 	@Override
 	public UserDto getById(Long id) {
-		return UserDtoMapper.toDto(getUser(id));
+		return UserDtoMapper.toUserDto(userRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id)));
 	}
 
 	@Override
 	public UserDto update(Long id, UserUpdateDto userUpdateDto) {
-		UserDto currentUserDto = UserDtoMapper.toDto(getUser(id));
-		User userUpdate = UserDtoMapper.toUserUpdate(userUpdateDto);
+		User currentUser = userRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id));
+		UserDto currentUserDto = UserDtoMapper.toUserDto(currentUser);
+		User userUpdate = UserDtoMapper.ofUserUpdateDto(userUpdateDto);
 		userUpdate.setId(id);
 
 		if (userUpdate.getName() == null) {
@@ -53,16 +55,11 @@ public class UserServiceImpl implements UserService {
 			userUpdate.setEmail(currentUserDto.getEmail());
 		}
 
-		return UserDtoMapper.toDto(userRepository.save(userUpdate));
+		return UserDtoMapper.toUserDto(userRepository.save(userUpdate));
 	}
 
 	@Override
 	public void deleteById(Long id) {
 		userRepository.deleteById(id);
-	}
-
-	private User getUser(Long id) {
-		Optional<User> optUser = userRepository.findById(id);
-		return optUser.orElseThrow(() -> new NotFoundException("Пользователя с таким id не существует: " + id));
 	}
 }

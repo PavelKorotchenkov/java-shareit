@@ -2,11 +2,13 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
-import ru.practicum.shareit.exception.InvalidStateException;
+import ru.practicum.shareit.util.OffsetPageRequest;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -21,6 +23,7 @@ public class BookingController {
 	private final BookingService bookingService;
 
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public BookingResponseDto addBooking(@RequestHeader(X_SHARER_USER_ID) long userId,
 										 @Valid @RequestBody BookingRequestDto bookingRequestDto) {
 		log.info("Получен запрос на бронирование вещи: {}", bookingRequestDto);
@@ -35,7 +38,7 @@ public class BookingController {
 									  @PathVariable long bookingId,
 									  @RequestParam boolean approved) {
 		log.info("Получен запрос - решение владельца вещи по одобрению бронирования: " +
-				"user id - {}, booking id - {}, approved - {}", userId, bookingId, approved);
+				"owner id - {}, booking id - {}, approved - {}", userId, bookingId, approved);
 		BookingResponseDto bookingResponseDto = bookingService.approve(userId, bookingId, approved);
 		log.info("Обработан запрос - решение владельца вещи по одобрению бронирования: {}", bookingResponseDto);
 		return bookingResponseDto;
@@ -52,30 +55,26 @@ public class BookingController {
 
 	@GetMapping
 	public List<BookingResponseDto> getAllBookings(@RequestHeader(X_SHARER_USER_ID) long userId,
-												   @RequestParam(defaultValue = "ALL") String state) {
-		log.info("Получен запрос на получение всех бронирований пользователя: {}, {}", userId, state);
-		State validState;
-		try {
-			validState = State.valueOf(state);
-		} catch (IllegalArgumentException e) {
-			throw new InvalidStateException("Unknown state: UNSUPPORTED_STATUS");
-		}
-		List<BookingResponseDto> allBookings = bookingService.getAllBookings(userId, validState);
-		log.info("Обработан запрос на получение всех бронирований пользователя: {}, {}", userId, state);
+												   @RequestParam(defaultValue = "ALL") String state,
+												   @RequestParam(required = false) Integer from,
+												   @RequestParam(required = false) Integer size) {
+		log.info("Получен запрос на получение всех бронирований пользователя: user id: {}, state: {}", userId, state);
+		State validState = State.getState(state);
+		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
+		List<BookingResponseDto> allBookings = bookingService.getAllBookings(userId, validState, page);
+		log.info("Обработан запрос на получение всех бронирований пользователя: {}", allBookings);
 		return allBookings;
 	}
 
 	@GetMapping("/owner")
 	public List<BookingResponseDto> getAllOwnerBookings(@RequestHeader(X_SHARER_USER_ID) long userId,
-														@RequestParam(defaultValue = "ALL") String state) {
+														@RequestParam(defaultValue = "ALL") String state,
+														@RequestParam(required = false) Integer from,
+														@RequestParam(required = false) Integer size) {
 		log.info("Получен запрос на получение всех бронирований вещей владельца: {}, {}", userId, state);
-		State validState;
-		try {
-			validState = State.valueOf(state);
-		} catch (IllegalArgumentException e) {
-			throw new InvalidStateException("Unknown state: UNSUPPORTED_STATUS");
-		}
-		List<BookingResponseDto> allBookings = bookingService.getAllOwnerBookings(userId, validState);
+		State validState = State.getState(state);
+		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
+		List<BookingResponseDto> allBookings = bookingService.getAllOwnerBookings(userId, validState, page);
 		log.info("Обработан запрос на получение всех бронирований вещей владельца: {}, {}", userId, validState);
 		return allBookings;
 	}

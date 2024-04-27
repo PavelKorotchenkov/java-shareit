@@ -2,6 +2,7 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserCreateDto;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -20,6 +21,7 @@ public class UserController {
 	private final UserService userService;
 
 	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
 	public UserDto saveNewUser(@Valid @RequestBody UserCreateDto userCreateDto) {
 		log.info("Получен запрос на добавление пользователя: {}", userCreateDto);
 		UserDto savedUser = userService.save(userCreateDto);
@@ -45,7 +47,7 @@ public class UserController {
 
 	@PatchMapping("/{id}")
 	public UserDto updateUser(@PathVariable Long id,
-							  @RequestBody UserUpdateDto userUpdateDto) {
+							  @Valid @RequestBody UserUpdateDto userUpdateDto) {
 		log.info("Получен запрос на обновление пользователя: {}, id: {}", userUpdateDto, id);
 		UserDto updatedUser = userService.update(id, userUpdateDto);
 		log.info("Отработан запрос на обновление пользователя: {}, id: {}", updatedUser, id);
@@ -53,6 +55,7 @@ public class UserController {
 	}
 
 	@DeleteMapping("/{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deleteUser(@PathVariable Long id) {
 		log.info("Получен запрос на удаление пользователя с id: {}", id);
 		userService.deleteById(id);

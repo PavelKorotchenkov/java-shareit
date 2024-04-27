@@ -13,10 +13,9 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 @ToString
 public class CommentRequestDto {
-	private long id;
-	@NotEmpty @NotBlank
+	@NotEmpty
+	@NotBlank
 	private String text;
 	private long itemId;
 	private long authorId;
-	private String created;
 }

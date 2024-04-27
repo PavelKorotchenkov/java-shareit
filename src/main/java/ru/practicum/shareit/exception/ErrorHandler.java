@@ -14,13 +14,6 @@ import java.io.StringWriter;
 @Slf4j
 public class ErrorHandler {
 	@ExceptionHandler
-	@ResponseStatus(HttpStatus.CONFLICT)
-	public ErrorResponse handler(final AlreadyExistsException e) {
-		log.info("Ошибка - сущность уже существует.");
-		return new ErrorResponse(e.getMessage());
-	}
-
-	@ExceptionHandler
 	@ResponseStatus(HttpStatus.NOT_FOUND)
 	public ErrorResponse handler(final NotFoundException e) {
 		log.info("Ошибка - сущность не найдена.");
