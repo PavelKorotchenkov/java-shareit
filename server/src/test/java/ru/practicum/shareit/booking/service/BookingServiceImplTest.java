@@ -72,14 +72,13 @@ class BookingServiceImplTest {
 				.start(formattedDateTimeStart)
 				.end(formattedDateTimeEnd)
 				.itemId(item.getId())
-				.bookerId(booker.getId())
 				.build();
 		Booking bookingEntity = Booking.builder().id(1L).startDate(start).endDate(end).build();
 		when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 		when(userService.getById(anyLong())).thenReturn(UserDtoMapper.toUserDto(booker));
 		when(bookingRepository.save(any())).thenReturn(bookingEntity);
 
-		BookingResponseDto actualBooking = bookingService.add(bookingToSave);
+		BookingResponseDto actualBooking = bookingService.add(booker.getId(), bookingToSave);
 		assertEquals(formattedDateTimeStart, actualBooking.getStart());
 		assertEquals(formattedDateTimeEnd, actualBooking.getEnd());
 	}
@@ -92,11 +91,10 @@ class BookingServiceImplTest {
 				.start("2024-04-23T10:10:10")
 				.end("2024-04-24T10:10:10")
 				.itemId(item.getId())
-				.bookerId(owner.getId())
 				.build();
 		when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
-		assertThrows(NotFoundException.class, () -> bookingService.add(bookingToSave));
+		assertThrows(NotFoundException.class, () -> bookingService.add(owner.getId(), bookingToSave));
 	}
 
 	@Test
@@ -108,11 +106,10 @@ class BookingServiceImplTest {
 				.start("2024-04-23T10:10:10")
 				.end("2024-04-24T10:10:10")
 				.itemId(item.getId())
-				.bookerId(booker.getId())
 				.build();
 		when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
-		assertThrows(NotAvailableException.class, () -> bookingService.add(bookingToSave));
+		assertThrows(NotAvailableException.class, () -> bookingService.add(booker.getId(), bookingToSave));
 	}
 
 	@Test
@@ -124,11 +121,10 @@ class BookingServiceImplTest {
 				.start(null)
 				.end("2024-04-24T10:10:10")
 				.itemId(item.getId())
-				.bookerId(booker.getId())
 				.build();
 		when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
-		assertThrows(BookingDateException.class, () -> bookingService.add(bookingToSave));
+		assertThrows(BookingDateException.class, () -> bookingService.add(booker.getId(), bookingToSave));
 	}
 
 	@Test
@@ -140,11 +136,10 @@ class BookingServiceImplTest {
 				.start("2024-04-23T10:10:10")
 				.end("2024-03-24T10:10:10")
 				.itemId(item.getId())
-				.bookerId(booker.getId())
 				.build();
 		when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
-		assertThrows(BookingDateException.class, () -> bookingService.add(bookingToSave));
+		assertThrows(BookingDateException.class, () -> bookingService.add(booker.getId(), bookingToSave));
 	}
 
 	@Test

@@ -40,9 +40,9 @@ public class BookingServiceImpl implements BookingService {
 	private final Sort byStartDateDesc = Sort.by(Sort.Direction.DESC, "StartDate");
 
 	@Override
-	public BookingResponseDto add(BookingRequestDto bookingRequestDto) {
-		Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена."));
-		if (bookingRequestDto.getBookerId() == item.getOwner().getId()) {
+	public BookingResponseDto add(long userId, BookingRequestDto bookingRequestDto) {
+		Item item = itemRepository.findById(userId).orElseThrow(() -> new NotFoundException("Вещь не найдена."));
+		if (userId == item.getOwner().getId()) {
 			throw new NotFoundException("Вы не можете забронировать свою вещь.");
 		}
 
@@ -63,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
 
 		booking.setStatus(Status.WAITING);
 		booking.setItem(item);
-		booking.setBooker(UserDtoMapper.ofUserDto(userService.getById(bookingRequestDto.getBookerId())));
+		booking.setBooker(UserDtoMapper.ofUserDto(userService.getById(userId)));
 
 		return BookingDtoMapper.toBookingResponseDto(bookingRepository.save(booking));
 	}
