@@ -10,9 +10,7 @@ public class OffsetPageRequest extends PageRequest {
 
 	public static PageRequest createPageRequest(Integer from, Integer size) {
 		PageRequest page;
-		if (from == null || size == null) {
-			page = PageRequest.of(0, Integer.MAX_VALUE);
-		} else if (from < 0) {
+		if (from < 0) {
 			throw new IllegalArgumentException("Параметр 'from' должен быть больше нуля.");
 		} else {
 			page = PageRequest.of(from / size, size);

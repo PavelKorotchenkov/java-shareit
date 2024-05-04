@@ -42,8 +42,8 @@ public class ItemRequestController {
 
 	@GetMapping("/all")
 	public List<ItemRequestResponseDto> getOtherRequests(@RequestHeader(X_SHARER_USER_ID) long userId,
-														 @RequestParam(required = false) Integer from,
-														 @RequestParam(required = false) Integer size) {
+														 @RequestParam(defaultValue = "0") int from,
+														 @RequestParam(defaultValue = "10") int size) {
 		log.info("Получен запрос на просмотр запросов, созданных другими пользователями");
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<ItemRequestResponseDto> response = requestService.getOtherRequests(userId, page);

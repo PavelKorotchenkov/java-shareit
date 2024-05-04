@@ -1,79 +1,195 @@
 package ru.practicum.shareit.item;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = ItemController.class)
 class ItemControllerTest {
-	@Mock
-	private ItemService itemService;
-	@InjectMocks
-	private ItemController itemController;
-	public static final long X_SHARER_USER_ID = 1L;
+	public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+	public static final Long ID = 1L;
+	@Autowired
+	private ObjectMapper objectMapper;
 
+	@Autowired
+	private MockMvc mockMvc;
+
+	@MockBean
+	private ItemService itemService;
+
+	@SneakyThrows
 	@Test
-	void addItem_whenItemCreateDtoInRequest_thenReturnItemDto() {
-		long userId = 1L;
+	void addItem_whenValidItemCreateDto_thenReturnOk() {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
-				.available(true)
-				.ownerId(userId)
-				.requestId(1L).build();
-
-		ItemDto expectedResponse = ItemDto.builder()
-				.id(1L)
-				.name("name")
-				.description("description")
-				.available(true)
-				.requestId(1L).build();
-
-		when(itemService.add(itemCreateDtoToSave)).thenReturn(expectedResponse);
-
-		ItemDto response = itemController.addItem(userId, itemCreateDtoToSave);
-		assertEquals(Objects.requireNonNull(response).getName(), "name");
-		assertEquals(Objects.requireNonNull(response).getDescription(), "description");
-	}
-
-	@Test
-	void updateItem_whenItemUpdateDtoInRequest_thenReturnItemDtoWithIdAndOwnerIdAndRequestId() {
-		long ownerId = 1L;
-		long itemId = 1L;
-		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
-				.name("name upd")
-				.description("description upd")
 				.available(true).build();
 
 		ItemDto expectedResponse = ItemDto.builder()
+				.id(1L)
+				.name("name")
+				.description("description")
+				.available(true)
+				.build();
+
+		when(itemService.add(any())).thenReturn(expectedResponse);
+
+		mockMvc.perform(post("/items")
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
+				.andExpect(status().is2xxSuccessful())
+				.andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.name").value("name"))
+				.andExpect(jsonPath("$.description").value("description"));
+	}
+
+	@SneakyThrows
+	@Test
+	void addItem_whenItemCreateDtoWithoutName_thenReturnBadRequest() {
+		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
+				.name("")
+				.description("description")
+				.available(true).build();
+
+		mockMvc.perform(post("/items")
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
+				.andExpect(status().isBadRequest());
+
+		verify(itemService, never()).add(itemCreateDtoToSave);
+	}
+
+	@SneakyThrows
+	@Test
+	void addItem_whenItemCreateDtoWithoutDescription_thenReturnBadRequest() {
+		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
+				.name("name")
+				.description("")
+				.available(true).build();
+
+		mockMvc.perform(post("/items")
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
+				.andExpect(status().isBadRequest());
+
+		verify(itemService, never()).add(itemCreateDtoToSave);
+	}
+
+	@SneakyThrows
+	@Test
+	void addItem_whenItemCreateDtoWithoutAvailable_thenReturnBadRequest() {
+		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
+				.name("name")
+				.description("description")
+				.available(null).build();
+
+		mockMvc.perform(post("/items")
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
+				.andExpect(status().isBadRequest());
+
+		verify(itemService, never()).add(itemCreateDtoToSave);
+	}
+
+	@SneakyThrows
+	@Test
+	void updateItem_whenValidHeader_thenReturnStatusOkWithUpdatedItemInBody() {
+		long itemId = 1L;
+
+		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
 				.id(itemId)
 				.name("name upd")
 				.description("description upd")
 				.available(true)
-				.requestId(null).build();
+				.ownerId(1L)
+				.build();
 
-		when(itemService.update(itemUpdateDto)).thenReturn(expectedResponse);
+		ItemDto expectedResponse = ItemDto.builder()
+				.id(itemId)
+				.name("name upd")
+				.description("description upd")
+				.available(true)
+				.build();
 
-		ItemDto response = itemController.updateItem(ownerId, itemId, itemUpdateDto);
-		assertEquals(expectedResponse.getName(), response.getName());
+		when(itemService.update(any())).thenReturn(expectedResponse);
+
+		mockMvc.perform(patch("/items/{id}", itemId)
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemUpdateDto)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.name").value("name upd"))
+				.andExpect(jsonPath("$.description").value("description upd"))
+				.andExpect(jsonPath("$.available").value(true));
 	}
 
+	@SneakyThrows
 	@Test
-	void getItem_whenItemExists_thenReturnItemWithFullInfoDto() {
+	void updateItem_whenNoHeader_thenReturnInternalServerError() {
 		long itemId = 1L;
-		long userId = 1L;
+		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
+				.id(itemId)
+				.name("name upd")
+				.description("description upd")
+				.available(true)
+				.build();
+
+		mockMvc.perform(patch("/items/{id}", itemId)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemUpdateDto)))
+				.andExpect(status().isInternalServerError());
+
+		verify(itemService, never()).update(itemUpdateDto);
+	}
+
+
+	@SneakyThrows
+	@Test
+	void updateItem_whenUserIsNotOwner_thenReturnAccessDeniedException() {
+		long itemId = 1L;
+		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
+				.id(itemId)
+				.name("name upd")
+				.description("description upd")
+				.available(true)
+				.build();
+
+		when(itemService.update(any())).thenThrow(AccessDeniedException.class);
+
+		mockMvc.perform(patch("/items/{id}", itemId)
+						.header(X_SHARER_USER_ID, 1L)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(itemUpdateDto)))
+				.andExpect(status().isForbidden());
+	}
+
+	@SneakyThrows
+	@Test
+	void getItem_whenValidHeader_thenReturnStatusOkWithItemWithFullInfoDtoInBody() {
+		long itemId = 1L;
 		ItemWithFullInfoDto expectedItem = ItemWithFullInfoDto.builder()
 				.id(itemId)
 				.name("name")
@@ -84,71 +200,146 @@ class ItemControllerTest {
 				.comments(new ArrayList<>())
 				.requestId(null).build();
 
-		when(itemService.getById(itemId, userId)).thenReturn(expectedItem);
+		when(itemService.getById(itemId, ID)).thenReturn(expectedItem);
 
-		ItemWithFullInfoDto response = itemController.getItem(itemId, userId);
-
-		assertEquals(expectedItem.getName(), response.getName());
+		mockMvc.perform(get("/items/{id}", itemId)
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString("")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.name").value("name"))
+				.andExpect(jsonPath("$.description").value("description"));
 	}
 
+	@SneakyThrows
 	@Test
-	void findAllByOwnerId_whenValidParameters_thenReturnListWithOneItemWithFullInfoDtoInBody() {
-		long ownerId = 1L;
+	void getItem_whenNoHeader_thenReturnInternalServerError() {
+		long id = 1L;
+		mockMvc.perform(get("/items/{id}", id))
+				.andExpect(status().isInternalServerError());
+
+		verify(itemService, never()).getById(id, ID);
+	}
+
+	@SneakyThrows
+	@Test
+	void findAllByOwnerId_whenValidHeader_thenReturnStatusOkWithExpectedListInBody() {
 		int from = 0;
 		int size = 1;
-		ItemWithFullInfoDto expectedItem = ItemWithFullInfoDto.builder()
-				.id(1L)
-				.name("name")
-				.description("description")
-				.available(true)
-				.lastBooking(null)
-				.nextBooking(null)
-				.comments(new ArrayList<>())
-				.requestId(null).build();
-		List<ItemWithFullInfoDto> expectedList = List.of(expectedItem);
-		PageRequest page = PageRequest.of(from, size);
-		when(itemService.findByOwnerId(ownerId, page)).thenReturn(expectedList);
-		List<ItemWithFullInfoDto> response = itemController.findAllByOwnerId(ownerId, from, size);
-		assertEquals(expectedList, response);
+		List<ItemWithFullInfoDto> expectedList = List.of(ItemWithFullInfoDto.builder().id(1L).name("name").build());
+
+		Pageable page = PageRequest.of(from, size);
+		when(itemService.findByOwnerId(ID, page)).thenReturn(expectedList);
+
+		mockMvc.perform(get("/items")
+						.header(X_SHARER_USER_ID, ID)
+						.param("from", String.valueOf(from))
+						.param("size", String.valueOf(size))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString("")))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].id").value(1))
+				.andExpect(jsonPath("$[0].name").value("name"));
 	}
 
+	@SneakyThrows
 	@Test
-	void searchBy_whenInvoked_thenReturnListWithItemDto() {
-		long userId = 1L;
-		String text = "item";
+	void findAllByOwnerId_whenNoHeader_thenReturnInternalServerError() {
+		mockMvc.perform(get("/items"))
+				.andExpect(status().isInternalServerError());
+
+		verify(itemService, never()).findByOwnerId(anyInt(), any());
+	}
+
+	@SneakyThrows
+	@Test
+	void findAllByOwnerId_whenNotValidPage_thenReturnIllegalArgumentException() {
+		int from = -1;
+		int size = 1;
+
+		mockMvc.perform(get("/items")
+						.header(X_SHARER_USER_ID, ID)
+						.param("from", String.valueOf(from))
+						.param("size", String.valueOf(size)))
+				.andExpect(status().isInternalServerError());
+		verify(itemService, never()).findByOwnerId(anyInt(), any());
+	}
+
+	@SneakyThrows
+	@Test
+	void searchBy_whenValidPage_thenReturnStatusOk() {
 		int from = 0;
 		int size = 1;
-		ItemDto dto = ItemDto.builder()
-				.id(1L)
-				.name("name")
-				.description("item description")
-				.available(true)
-				.requestId(1L).build();
-		List<ItemDto> expectedList = List.of(dto);
-		PageRequest page = PageRequest.of(from, size);
-		when(itemService.searchBy(userId, text, page)).thenReturn(expectedList);
-		List<ItemDto> response = itemController.searchBy(userId, text, from, size);
-		assertEquals(expectedList, response);
+		String searchBy = "text";
+
+		mockMvc.perform(get("/items/search")
+						.header(X_SHARER_USER_ID, ID)
+						.param("text", searchBy)
+						.param("from", String.valueOf(from))
+						.param("size", String.valueOf(size)))
+				.andExpect(status().isOk());
 	}
 
+	@SneakyThrows
 	@Test
-	void addComment_whenCommentRequestDtoInRequest_thenReturnStatusOkWithCommentResponseDtoInBody() {
+	void searchBy_whenNotValidPage_thenReturnIllegalArgumentException() {
+		int from = -1;
+		int size = 1;
+		String searchBy = "text";
+
+		mockMvc.perform(get("/items/search")
+						.header(X_SHARER_USER_ID, ID)
+						.param("text", searchBy)
+						.param("from", String.valueOf(from))
+						.param("size", String.valueOf(size)))
+				.andExpect(result -> {
+					if (!(result.getResolvedException() instanceof IllegalArgumentException)) {
+						throw new AssertionError("Expected IllegalArgumentException, but got: " +
+								result.getResolvedException());
+					}
+				});
+		verify(itemService, never()).searchBy(anyLong(), anyString(), any());
+	}
+
+	@SneakyThrows
+	@Test
+	void addComment_whenCommentNotEmpty_thenReturnStatusOkWithCommentInBody() {
 		long itemId = 1L;
-		String comment = "comment";
-		String created = "2024-04-18T15:10:10";
-		CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-				.text(comment)
-				.itemId(itemId)
-				.authorId(2L)
+		CommentRequestDto commentToAdd = CommentRequestDto.builder()
+				.text("comment")
 				.build();
+
 		CommentResponseDto expectedComment = CommentResponseDto.builder()
 				.id(1L)
-				.text(comment)
-				.authorName("name")
-				.created(created)
+				.text("comment")
+				.authorName("author")
+				.created("2024-04-15T15:30:10")
 				.build();
-		when(itemService.addComment(commentRequestDto)).thenReturn(expectedComment);
-		CommentResponseDto response = itemController.addComment(X_SHARER_USER_ID, itemId, commentRequestDto);
-		assertEquals(expectedComment.getText(), response.getText());
+
+		when(itemService.addComment(any())).thenReturn(expectedComment);
+
+		mockMvc.perform(post("/items/{itemId}/comment", itemId)
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(commentToAdd)))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.text").value("comment"))
+				.andExpect(jsonPath("$.authorName").value("author"))
+				.andExpect(jsonPath("$.created").value("2024-04-15T15:30:10"));
+	}
+
+	@SneakyThrows
+	@Test
+	void addComment_whenCommentEmpty_thenReturn() {
+		long itemId = 1L;
+		CommentRequestDto commentToAdd = CommentRequestDto.builder().text("").build();
+
+		mockMvc.perform(post("/items/{itemId}/comment", itemId)
+						.header(X_SHARER_USER_ID, ID)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(objectMapper.writeValueAsString(commentToAdd)))
+				.andExpect(status().isBadRequest());
+
+		verify(itemService, never()).addComment(any());
 	}
 }

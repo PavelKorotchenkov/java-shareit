@@ -6,6 +6,7 @@ public enum State {
 	WAITING, APPROVED, REJECTED, CANCELED, CURRENT, PAST, FUTURE, ALL;
 
 	public static State getState(String state) {
+		State result;
 		for (State s : State.values()) {
 			if (s.name().equalsIgnoreCase(state)) {
 				return s;

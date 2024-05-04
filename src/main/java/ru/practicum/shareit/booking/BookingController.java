@@ -56,8 +56,8 @@ public class BookingController {
 	@GetMapping
 	public List<BookingResponseDto> getAllBookings(@RequestHeader(X_SHARER_USER_ID) long userId,
 												   @RequestParam(defaultValue = "ALL") String state,
-												   @RequestParam(required = false) Integer from,
-												   @RequestParam(required = false) Integer size) {
+												   @RequestParam(defaultValue = "0") int from,
+												   @RequestParam(defaultValue = "10") int size) {
 		log.info("Получен запрос на получение всех бронирований пользователя: user id: {}, state: {}", userId, state);
 		State validState = State.getState(state);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
@@ -69,8 +69,8 @@ public class BookingController {
 	@GetMapping("/owner")
 	public List<BookingResponseDto> getAllOwnerBookings(@RequestHeader(X_SHARER_USER_ID) long userId,
 														@RequestParam(defaultValue = "ALL") String state,
-														@RequestParam(required = false) Integer from,
-														@RequestParam(required = false) Integer size) {
+														@RequestParam(defaultValue = "0") int from,
+														@RequestParam(defaultValue = "10") int size) {
 		log.info("Получен запрос на получение всех бронирований вещей владельца: {}, {}", userId, state);
 		State validState = State.getState(state);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
