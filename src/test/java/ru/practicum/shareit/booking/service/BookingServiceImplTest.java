@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import ru.practicum.shareit.booking.State;
+import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -290,7 +290,7 @@ class BookingServiceImplTest {
 						bookingSecond,
 						bookingFirst), page, 3));
 
-		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), State.ALL, page);
+		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), BookingState.ALL, page);
 
 		assertEquals(3, actualList.get(0).getId());
 		assertEquals(2, actualList.get(1).getId());
@@ -315,7 +315,7 @@ class BookingServiceImplTest {
 				eq(page)))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), State.PAST, page);
+		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), BookingState.PAST, page);
 		assertEquals(1, actualList.get(0).getId());
 	}
 
@@ -339,7 +339,7 @@ class BookingServiceImplTest {
 				eq(page)))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), State.CURRENT, page);
+		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), BookingState.CURRENT, page);
 		assertEquals(1, actualList.get(0).getId());
 	}
 
@@ -362,7 +362,7 @@ class BookingServiceImplTest {
 				eq(page)))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), State.FUTURE, page);
+		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), BookingState.FUTURE, page);
 		assertEquals(1, actualList.get(0).getId());
 	}
 
@@ -382,7 +382,7 @@ class BookingServiceImplTest {
 		when(bookingRepository.findByBookerIdAndStatus(booker.getId(), Status.WAITING, page))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), State.WAITING, page);
+		List<BookingResponseDto> actualList = bookingService.getAllBookings(booker.getId(), BookingState.WAITING, page);
 		assertEquals(1, actualList.get(0).getId());
 	}
 
@@ -404,7 +404,7 @@ class BookingServiceImplTest {
 		when(bookingRepository.findByItemOwnerId(owner.getId(), page))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst, bookingSecond), page, 2));
 
-		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), State.ALL, page);
+		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), BookingState.ALL, page);
 
 		assertEquals(1, actualList.get(0).getId());
 		assertEquals(2, actualList.get(1).getId());
@@ -432,7 +432,7 @@ class BookingServiceImplTest {
 				eq(page)))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), State.PAST, page);
+		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), BookingState.PAST, page);
 
 		assertEquals(1, actualList.get(0).getId());
 		verify(userService, times(1)).getById(anyLong());
@@ -460,7 +460,7 @@ class BookingServiceImplTest {
 				eq(page)))
 				.thenReturn(new PageImpl<>(List.of(bookingSecond), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), State.CURRENT, page);
+		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), BookingState.CURRENT, page);
 
 		assertEquals(2, actualList.get(0).getId());
 		verify(userService, times(1)).getById(anyLong());
@@ -487,7 +487,7 @@ class BookingServiceImplTest {
 				eq(page)))
 				.thenReturn(new PageImpl<>(List.of(bookingSecond), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), State.FUTURE, page);
+		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), BookingState.FUTURE, page);
 
 		assertEquals(2, actualList.get(0).getId());
 		verify(userService, times(1)).getById(anyLong());
@@ -515,11 +515,11 @@ class BookingServiceImplTest {
 		Pageable page = PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "StartDate"));
 		when(bookingRepository.findByItemOwnerIdAndStatus(
 				eq(owner.getId()),
-				eq(Status.valueOf(State.APPROVED.name())),
+				eq(Status.valueOf(BookingState.APPROVED.name())),
 				eq(page)))
 				.thenReturn(new PageImpl<>(List.of(bookingFirst), page, 1));
 
-		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), State.APPROVED, page);
+		List<BookingResponseDto> actualList = bookingService.getAllOwnerBookings(owner.getId(), BookingState.APPROVED, page);
 
 		assertEquals(1, actualList.get(0).getId());
 		verify(userService, times(1)).getById(anyLong());

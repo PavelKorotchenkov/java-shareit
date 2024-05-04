@@ -260,7 +260,7 @@ class BookingControllerTest {
 		long userId = 1L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
 		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
-		State state = State.ALL;
+		BookingState state = BookingState.ALL;
 		Pageable page = PageRequest.of(from, size);
 		BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
 				.id(1L)
@@ -276,7 +276,7 @@ class BookingControllerTest {
 
 		String result = mockMvc.perform(get("/bookings")
 						.header(X_SHARER_USER_ID, 1L)
-						.param("state", State.ALL.name())
+						.param("state", BookingState.ALL.name())
 						.param("from", String.valueOf(from))
 						.param("size", String.valueOf(size)))
 				.andExpect(status().isOk())
@@ -309,7 +309,7 @@ class BookingControllerTest {
 
 		String result = mockMvc.perform(get("/bookings")
 						.header(X_SHARER_USER_ID, 1L)
-						.param("state", State.ALL.name())
+						.param("state", BookingState.ALL.name())
 						.param("from", (String) null)
 						.param("size", (String) null))
 				.andExpect(status().isOk())
@@ -329,7 +329,7 @@ class BookingControllerTest {
 		int size = 1;
 		mockMvc.perform(get("/bookings")
 						.header(X_SHARER_USER_ID, 1L)
-						.param("state", State.ALL.name())
+						.param("state", BookingState.ALL.name())
 						.param("from", String.valueOf(from))
 						.param("size", String.valueOf(size)))
 				.andExpect(status().isInternalServerError())
@@ -362,7 +362,7 @@ class BookingControllerTest {
 		long ownerId = 2L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
 		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
-		State state = State.ALL;
+		BookingState state = BookingState.ALL;
 		Pageable page = PageRequest.of(from, size);
 		BookingResponseDto bookingResponseDto = BookingResponseDto.builder()
 				.id(1L)
@@ -378,7 +378,7 @@ class BookingControllerTest {
 
 		String result = mockMvc.perform(get("/bookings/owner")
 						.header(X_SHARER_USER_ID, ownerId)
-						.param("state", State.ALL.name())
+						.param("state", BookingState.ALL.name())
 						.param("from", String.valueOf(from))
 						.param("size", String.valueOf(size)))
 				.andExpect(status().isOk())

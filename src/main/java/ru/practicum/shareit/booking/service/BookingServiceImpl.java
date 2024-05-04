@@ -5,7 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.State;
+import ru.practicum.shareit.booking.BookingState;
 import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.booking.dto.BookingDtoMapper;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
@@ -103,18 +103,18 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingResponseDto> getAllBookings(long booker, State state, Pageable pageable) {
+	public List<BookingResponseDto> getAllBookings(long booker, BookingState state, Pageable pageable) {
 		userService.getById(booker);
 		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
 		Pageable sortByStartDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), byStartDateDesc);
-		if (state.equals(State.ALL)) {
+		if (state.equals(BookingState.ALL)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerId(booker, sortByStartDateDesc).getContent());
-		} else if (state.equals(State.PAST)) {
+		} else if (state.equals(BookingState.PAST)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndEndDateBefore(booker, date, sortByStartDateDesc).getContent());
-		} else if (state.equals(State.CURRENT)) {
+		} else if (state.equals(BookingState.CURRENT)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndStartDateBeforeAndEndDateAfter(booker, date, date, sortByStartDateDesc).getContent());
-		} else if (state.equals(State.FUTURE)) {
+		} else if (state.equals(BookingState.FUTURE)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndStartDateAfter(booker, date, sortByStartDateDesc).getContent());
 		} else {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByBookerIdAndStatus(booker, Status.valueOf(state.name()), sortByStartDateDesc).getContent());
@@ -124,18 +124,18 @@ public class BookingServiceImpl implements BookingService {
 	}
 
 	@Override
-	public List<BookingResponseDto> getAllOwnerBookings(long ownerId, State state, Pageable pageable) {
+	public List<BookingResponseDto> getAllOwnerBookings(long ownerId, BookingState state, Pageable pageable) {
 		userService.getById(ownerId);
 		List<BookingResponseDto> result;
 		LocalDateTime date = LocalDateTime.now();
 		Pageable sortByStartDateDesc = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), byStartDateDesc);
-		if (state.equals(State.ALL)) {
+		if (state.equals(BookingState.ALL)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerId(ownerId, sortByStartDateDesc).getContent());
-		} else if (state.equals(State.PAST)) {
+		} else if (state.equals(BookingState.PAST)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndEndDateBefore(ownerId, date, sortByStartDateDesc).getContent());
-		} else if (state.equals(State.CURRENT)) {
+		} else if (state.equals(BookingState.CURRENT)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndStartDateBeforeAndEndDateAfter(ownerId, date, date, sortByStartDateDesc).getContent());
-		} else if (state.equals(State.FUTURE)) {
+		} else if (state.equals(BookingState.FUTURE)) {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndStartDateAfter(ownerId, date, sortByStartDateDesc).getContent());
 		} else {
 			result = BookingDtoMapper.toBookingResponseDto(bookingRepository.findByItemOwnerIdAndStatus(ownerId, Status.valueOf(state.name()), sortByStartDateDesc).getContent());

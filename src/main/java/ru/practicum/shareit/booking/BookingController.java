@@ -59,7 +59,7 @@ public class BookingController {
 												   @RequestParam(defaultValue = "0") int from,
 												   @RequestParam(defaultValue = "10") int size) {
 		log.info("Получен запрос на получение всех бронирований пользователя: user id: {}, state: {}", userId, state);
-		State validState = State.getState(state);
+		BookingState validState = BookingState.getState(state);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<BookingResponseDto> allBookings = bookingService.getAllBookings(userId, validState, page);
 		log.info("Обработан запрос на получение всех бронирований пользователя: {}", allBookings);
@@ -72,7 +72,7 @@ public class BookingController {
 														@RequestParam(defaultValue = "0") int from,
 														@RequestParam(defaultValue = "10") int size) {
 		log.info("Получен запрос на получение всех бронирований вещей владельца: {}, {}", userId, state);
-		State validState = State.getState(state);
+		BookingState validState = BookingState.getState(state);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<BookingResponseDto> allBookings = bookingService.getAllOwnerBookings(userId, validState, page);
 		log.info("Обработан запрос на получение всех бронирований вещей владельца: {}, {}", userId, validState);
