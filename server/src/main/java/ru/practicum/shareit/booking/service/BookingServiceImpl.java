@@ -12,7 +12,6 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repo.BookingRepository;
-import ru.practicum.shareit.exception.BookingDateException;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
@@ -51,15 +50,6 @@ public class BookingServiceImpl implements BookingService {
 		}
 
 		Booking booking = BookingDtoMapper.ofBookingRequestDto(bookingRequestDto);
-
-		if (booking.getStartDate() == null ||
-				booking.getEndDate() == null ||
-				booking.getEndDate().isBefore(LocalDateTime.now()) ||
-				booking.getStartDate().isBefore(LocalDateTime.now()) ||
-				booking.getEndDate().isBefore(booking.getStartDate()) ||
-				booking.getStartDate().equals(booking.getEndDate())) {
-			throw new BookingDateException("Выбрано некорректное время бронирования.");
-		}
 
 		booking.setStatus(Status.WAITING);
 		booking.setItem(item);

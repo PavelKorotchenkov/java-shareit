@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.util.OffsetPageRequest;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,8 +23,8 @@ public class ItemController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ItemDto addItem(@RequestHeader(X_SHARER_USER_ID) long ownerId,
-						   @Valid @RequestBody ItemCreateDto itemCreateDto) {
-		log.info("Получен запрос на добавление вещи: {}", itemCreateDto);
+						   @RequestBody ItemCreateDto itemCreateDto) {
+		log.info("Получен запрос на создание вещи = {}, ownerId = {}", itemCreateDto, ownerId);
 		itemCreateDto.setOwnerId(ownerId);
 		ItemDto response = itemService.add(itemCreateDto);
 		log.info("Отработан запрос на добавление вещи: {}", response);
@@ -36,7 +35,7 @@ public class ItemController {
 	public ItemDto updateItem(@RequestHeader(X_SHARER_USER_ID) long ownerId,
 							  @PathVariable Long id,
 							  @RequestBody ItemUpdateDto itemUpdateDto) {
-		log.info("Получен запрос на обновление вещи: {}", itemUpdateDto);
+		log.info("Получен запрос на обновление вещи c id = {}, описание вещи = {} , ownerId = {}", itemUpdateDto, id, ownerId);
 		itemUpdateDto.setId(id);
 		itemUpdateDto.setOwnerId(ownerId);
 		ItemDto response = itemService.update(itemUpdateDto);
@@ -79,7 +78,7 @@ public class ItemController {
 	@PostMapping("/{itemId}/comment")
 	public CommentResponseDto addComment(@RequestHeader(X_SHARER_USER_ID) long userId,
 										 @PathVariable Long itemId,
-										 @Valid @RequestBody CommentRequestDto commentRequestDto) {
+										 @RequestBody CommentRequestDto commentRequestDto) {
 		log.info("Получен запрос на добавление комментария для вещи: {}, {}", itemId, commentRequestDto);
 		commentRequestDto.setAuthorId(userId);
 		commentRequestDto.setItemId(itemId);

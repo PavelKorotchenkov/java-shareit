@@ -5,17 +5,14 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-
 @Getter
 @Setter
-@ToString
 @Builder
-public class ItemCreateDto {
+@ToString
+public class ItemUpdateDto {
+	private long id;
 	private String name;
 	private String description;
 	private Boolean available;
 	private long ownerId;
-	private Long requestId;
 }

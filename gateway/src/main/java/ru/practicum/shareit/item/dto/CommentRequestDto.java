@@ -13,6 +13,8 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 @ToString
 public class CommentRequestDto {
+	@NotEmpty
+	@NotBlank
 	private String text;
 	private long itemId;
 	private long authorId;

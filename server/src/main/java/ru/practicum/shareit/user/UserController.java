@@ -22,8 +22,7 @@ public class UserController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public UserDto saveNewUser(@Valid @RequestBody UserCreateDto userCreateDto) {
-		log.info("Получен запрос на добавление пользователя: {}", userCreateDto);
+	public UserDto saveNewUser(@RequestBody UserCreateDto userCreateDto) {
 		UserDto savedUser = userService.save(userCreateDto);
 		log.info("Отработан запрос на добавление пользователя: {}", savedUser);
 		return savedUser;
@@ -31,7 +30,6 @@ public class UserController {
 
 	@GetMapping
 	public List<UserDto> getAllUsers() {
-		log.info("Получен запрос на получение всех пользователей");
 		List<UserDto> allUsersDto = userService.getAll();
 		log.info("Отработан запрос на получение всех пользователей");
 		return allUsersDto;

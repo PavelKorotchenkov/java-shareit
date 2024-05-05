@@ -34,13 +34,6 @@ public class ErrorHandler {
 		return new ErrorResponse(e.getMessage());
 	}
 
-	@ExceptionHandler
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ErrorResponse handler(final BookingDateException e) {
-		log.info("Ошибка - выбрано некорректное время бронирования.");
-		return new ErrorResponse(e.getMessage());
-	}
-
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ErrorResponse handler(final MethodArgumentNotValidException e) {

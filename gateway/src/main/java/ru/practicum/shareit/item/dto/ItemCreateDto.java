@@ -13,8 +13,11 @@ import javax.validation.constraints.NotNull;
 @ToString
 @Builder
 public class ItemCreateDto {
+	@NotEmpty
 	private String name;
+	@NotEmpty
 	private String description;
+	@NotNull
 	private Boolean available;
 	private long ownerId;
 	private Long requestId;

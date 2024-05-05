@@ -112,7 +112,7 @@ class BookingServiceImplTest {
 		assertThrows(NotAvailableException.class, () -> bookingService.add(booker.getId(), bookingToSave));
 	}
 
-	@Test
+	/*@Test
 	void add_whenStartBookingTimeIsNull_thenReturnBookingDateException() {
 		User owner = User.builder().id(1L).email("owner@mail.ru").name("owner").build();
 		User booker = User.builder().id(2L).email("booker@mail.ru").name("booker").build();
@@ -125,7 +125,7 @@ class BookingServiceImplTest {
 		when(itemRepository.findById(anyLong())).thenReturn(Optional.of(item));
 
 		assertThrows(BookingDateException.class, () -> bookingService.add(booker.getId(), bookingToSave));
-	}
+	}*/
 
 	@Test
 	void add_whenStartDateAfterEndDate_thenReturnBookingDateException() {
