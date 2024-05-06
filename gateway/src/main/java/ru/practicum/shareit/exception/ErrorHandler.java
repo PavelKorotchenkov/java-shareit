@@ -13,33 +13,6 @@ import java.io.StringWriter;
 @RestControllerAdvice
 @Slf4j
 public class ErrorHandler {
-	@ExceptionHandler
-	@ResponseStatus(HttpStatus.NOT_FOUND)
-	public ErrorResponse handler(final NotFoundException e) {
-		log.info("Ошибка - сущность не найдена.");
-		return new ErrorResponse(e.getMessage());
-	}
-
-	@ExceptionHandler
-	@ResponseStatus(HttpStatus.FORBIDDEN)
-	public ErrorResponse handler(final AccessDeniedException e) {
-		log.info("Ошибка - доступ запрещен.");
-		return new ErrorResponse(e.getMessage());
-	}
-
-	@ExceptionHandler
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ErrorResponse handler(final NotAvailableException e) {
-		log.info("Ошибка - вещь недоступна для бронирования.");
-		return new ErrorResponse(e.getMessage());
-	}
-
-	@ExceptionHandler
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public ErrorResponse handler(final BookingDateException e) {
-		log.info("Ошибка - выбрано некорректное время бронирования.");
-		return new ErrorResponse(e.getMessage());
-	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)

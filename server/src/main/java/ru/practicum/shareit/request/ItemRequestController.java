@@ -10,7 +10,6 @@ import ru.practicum.shareit.request.dto.ItemRequestResponseDto;
 import ru.practicum.shareit.request.service.RequestService;
 import ru.practicum.shareit.util.OffsetPageRequest;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -25,7 +24,7 @@ public class ItemRequestController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public ItemRequestResponseDto addRequest(@RequestHeader(X_SHARER_USER_ID) long userId,
-											 @Valid @RequestBody ItemRequestCreateDto itemRequestDto) {
+											 @RequestBody ItemRequestCreateDto itemRequestDto) {
 		log.info("Получен запрос на новый item request: {}", itemRequestDto);
 		ItemRequestResponseDto response = requestService.addRequest(itemRequestDto, userId);
 		log.info("Отработан запрос на новый item request: {}", response);
@@ -33,17 +32,17 @@ public class ItemRequestController {
 	}
 
 	@GetMapping
-	public List<ItemRequestResponseDto> getRequests(@RequestHeader(X_SHARER_USER_ID) long userId) {
-		log.info("Получен запрос на все запросы пользователя с id: {}", userId);
-		List<ItemRequestResponseDto> response = requestService.getRequests(userId);
+	public List<ItemRequestResponseDto> getRequests(@RequestHeader(X_SHARER_USER_ID) long ownerId) {
+		log.info("Получен запрос на все запросы пользователя с id: {}", ownerId);
+		List<ItemRequestResponseDto> response = requestService.getRequests(ownerId);
 		log.info("Обработан запрос на все запросы пользователя: {}", response);
 		return response;
 	}
 
 	@GetMapping("/all")
 	public List<ItemRequestResponseDto> getOtherRequests(@RequestHeader(X_SHARER_USER_ID) long userId,
-														 @RequestParam(defaultValue = "0") int from,
-														 @RequestParam(defaultValue = "10") int size) {
+														 @RequestParam(required = false, defaultValue = "0") int from,
+														 @RequestParam(required = false, defaultValue = "10") int size) {
 		log.info("Получен запрос на просмотр запросов, созданных другими пользователями");
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<ItemRequestResponseDto> response = requestService.getOtherRequests(userId, page);

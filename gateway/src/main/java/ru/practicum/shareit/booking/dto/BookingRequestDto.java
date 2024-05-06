@@ -7,15 +7,16 @@ import lombok.ToString;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.FutureOrPresent;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
 @ToString
 public class BookingRequestDto {
-	@FutureOrPresent
-	private String start;
-	@Future
-	private String end;
 	private long itemId;
+	@FutureOrPresent
+	private LocalDateTime start;
+	@Future
+	private LocalDateTime end;
 }

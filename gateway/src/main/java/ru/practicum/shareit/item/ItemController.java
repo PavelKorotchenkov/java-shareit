@@ -47,8 +47,8 @@ public class ItemController {
 
 	@GetMapping
 	public ResponseEntity<Object> findAllByOwnerId(@RequestHeader(X_SHARER_USER_ID) long ownerId,
-												   @RequestParam(defaultValue = "0") int from,
-												   @RequestParam(defaultValue = "10") int size) {
+												   @RequestParam(required = false, defaultValue = "0") int from,
+												   @RequestParam(required = false, defaultValue = "10") int size) {
 		log.info("Валидация - получен запрос на получение всех вещей владельца вещи, ownerId = {}, from = {}, size = {}", ownerId, from, size);
 		return itemClient.findAllByOwnerId(ownerId, from, size);
 	}
@@ -56,8 +56,8 @@ public class ItemController {
 	@GetMapping("/search")
 	public ResponseEntity<Object> searchBy(@RequestHeader(X_SHARER_USER_ID) long userId,
 										   @RequestParam String text,
-										   @RequestParam(defaultValue = "0") int from,
-										   @RequestParam(defaultValue = "10") int size) {
+										   @RequestParam(required = false, defaultValue = "0") int from,
+										   @RequestParam(required = false, defaultValue = "10") int size) {
 		log.info("Валидация - получен запрос на поиск всех вещей по тексту = {}, userId = {}, from = {}, size = {}", text, userId, from, size);
 		return itemClient.searchBy(userId, text, from, size);
 	}

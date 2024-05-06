@@ -12,6 +12,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repo.BookingRepository;
+import ru.practicum.shareit.exception.BookingDateException;
 import ru.practicum.shareit.exception.NotAvailableException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDtoMapper;
@@ -40,7 +41,7 @@ public class BookingServiceImpl implements BookingService {
 
 	@Override
 	public BookingResponseDto add(long userId, BookingRequestDto bookingRequestDto) {
-		Item item = itemRepository.findById(userId).orElseThrow(() -> new NotFoundException("Вещь не найдена."));
+		Item item = itemRepository.findById(bookingRequestDto.getItemId()).orElseThrow(() -> new NotFoundException("Вещь не найдена."));
 		if (userId == item.getOwner().getId()) {
 			throw new NotFoundException("Вы не можете забронировать свою вещь.");
 		}
@@ -50,6 +51,13 @@ public class BookingServiceImpl implements BookingService {
 		}
 
 		Booking booking = BookingDtoMapper.ofBookingRequestDto(bookingRequestDto);
+
+		if (booking.getStartDate() == null ||
+				booking.getEndDate() == null ||
+				booking.getEndDate().isBefore(booking.getStartDate()) ||
+				booking.getStartDate().equals(booking.getEndDate())) {
+			throw new BookingDateException("Выбрано некорректное время бронирования.");
+		}
 
 		booking.setStatus(Status.WAITING);
 		booking.setItem(item);
@@ -85,7 +93,7 @@ public class BookingServiceImpl implements BookingService {
 	public BookingResponseDto getInfoById(long userId, long bookingId) {
 		UserDto userDto = userService.getById(userId);
 		Booking booking = getBooking(bookingId);
-		if (booking.getBooker().getId() != userDto.getId() && booking.getItem().getOwner().getId() != userDto.getId()) {
+		if (booking.getBooker().getId() != userId && booking.getItem().getOwner().getId() != userId) {
 			throw new NotFoundException("У вас нет такого бронирования");
 		}
 		BookingResponseDto bookingResponseDto = BookingDtoMapper.toBookingResponseDto(getBooking(bookingId));

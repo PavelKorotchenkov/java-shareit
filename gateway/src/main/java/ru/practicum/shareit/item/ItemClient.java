@@ -40,7 +40,7 @@ public class ItemClient extends BaseClient {
 
 
 	public ResponseEntity<Object> getItem(long userId, Long id) {
-		return get("/id" + id, userId);
+		return get("/" + id, userId);
 	}
 
 	public ResponseEntity<Object> findAllByOwnerId(long ownerId, int from, int size) {

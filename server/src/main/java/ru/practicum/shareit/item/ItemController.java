@@ -54,8 +54,8 @@ public class ItemController {
 
 	@GetMapping
 	public List<ItemWithFullInfoDto> findAllByOwnerId(@RequestHeader(X_SHARER_USER_ID) long ownerId,
-													  @RequestParam(defaultValue = "0") int from,
-													  @RequestParam(defaultValue = "10") int size) {
+													  @RequestParam(required = false, defaultValue = "0") int from,
+													  @RequestParam(required = false, defaultValue = "10") int size) {
 		log.info("Получен запрос на получение всех вещей владельца вещи, ownerId: {}", ownerId);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<ItemWithFullInfoDto> response = itemService.findByOwnerId(ownerId, page);
@@ -66,8 +66,8 @@ public class ItemController {
 	@GetMapping("/search")
 	public List<ItemDto> searchBy(@RequestHeader(X_SHARER_USER_ID) long userId,
 								  @RequestParam String text,
-								  @RequestParam(defaultValue = "0") int from,
-								  @RequestParam(defaultValue = "10") int size) {
+								  @RequestParam(required = false, defaultValue = "0") int from,
+								  @RequestParam(required = false, defaultValue = "10") int size) {
 		log.info("Получен запрос на поиск всех вещей по тексту: {}", text);
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
 		List<ItemDto> response = itemService.searchBy(userId, text, page);
