@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.exception.InvalidStateException;
 
 import javax.validation.Valid;
 
@@ -50,7 +51,7 @@ public class BookingController {
 												 @RequestParam(defaultValue = "ALL") String state,
 												 @RequestParam(defaultValue = "0") int from,
 												 @RequestParam(defaultValue = "10") int size) {
-		BookingState validState = BookingState.getState(state).orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
+		BookingState validState = BookingState.getState(state).orElseThrow(() -> new InvalidStateException("Unknown state: " + state));
 		log.info("Валидация - получен запрос на получение всех бронирований пользователя userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
 		return bookingClient.getBookings(userId, validState, from, size);
 	}
@@ -61,7 +62,7 @@ public class BookingController {
 													  @RequestParam(defaultValue = "0") int from,
 													  @RequestParam(defaultValue = "10") int size) {
 		log.info("Валидация - получен запрос на получение всех бронирований вещей владельца userId = {}, state = {}, from = {}, size = {}", userId, state, from, size);
-		BookingState validState = BookingState.getState(state).orElseThrow(() -> new IllegalArgumentException("Unknown state: " + state));
+		BookingState validState = BookingState.getState(state).orElseThrow(() -> new InvalidStateException("Unknown state: " + state));
 		return bookingClient.getOwnerBookings(userId, validState, from, size);
 	}
 }

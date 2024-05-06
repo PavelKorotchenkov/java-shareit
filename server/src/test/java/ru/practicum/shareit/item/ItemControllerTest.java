@@ -64,57 +64,6 @@ class ItemControllerTest {
 
 	@SneakyThrows
 	@Test
-	void addItem_whenItemCreateDtoWithoutName_thenReturnBadRequest() {
-		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
-				.name("")
-				.description("description")
-				.available(true).build();
-
-		mockMvc.perform(post("/items")
-						.header(X_SHARER_USER_ID, ID)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
-				.andExpect(status().isBadRequest());
-
-		verify(itemService, never()).add(itemCreateDtoToSave);
-	}
-
-	@SneakyThrows
-	@Test
-	void addItem_whenItemCreateDtoWithoutDescription_thenReturnBadRequest() {
-		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
-				.name("name")
-				.description("")
-				.available(true).build();
-
-		mockMvc.perform(post("/items")
-						.header(X_SHARER_USER_ID, ID)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
-				.andExpect(status().isBadRequest());
-
-		verify(itemService, never()).add(itemCreateDtoToSave);
-	}
-
-	@SneakyThrows
-	@Test
-	void addItem_whenItemCreateDtoWithoutAvailable_thenReturnBadRequest() {
-		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
-				.name("name")
-				.description("description")
-				.available(null).build();
-
-		mockMvc.perform(post("/items")
-						.header(X_SHARER_USER_ID, ID)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(itemCreateDtoToSave)))
-				.andExpect(status().isBadRequest());
-
-		verify(itemService, never()).add(itemCreateDtoToSave);
-	}
-
-	@SneakyThrows
-	@Test
 	void updateItem_whenValidHeader_thenReturnStatusOkWithUpdatedItemInBody() {
 		long itemId = 1L;
 
@@ -326,20 +275,5 @@ class ItemControllerTest {
 				.andExpect(jsonPath("$.text").value("comment"))
 				.andExpect(jsonPath("$.authorName").value("author"))
 				.andExpect(jsonPath("$.created").value("2024-04-15T15:30:10"));
-	}
-
-	@SneakyThrows
-	@Test
-	void addComment_whenCommentEmpty_thenReturn() {
-		long itemId = 1L;
-		CommentRequestDto commentToAdd = CommentRequestDto.builder().text("").build();
-
-		mockMvc.perform(post("/items/{itemId}/comment", itemId)
-						.header(X_SHARER_USER_ID, ID)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(commentToAdd)))
-				.andExpect(status().isBadRequest());
-
-		verify(itemService, never()).addComment(any());
 	}
 }

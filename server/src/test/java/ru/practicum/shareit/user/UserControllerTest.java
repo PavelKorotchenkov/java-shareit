@@ -52,45 +52,6 @@ class UserControllerTest {
 
 	@SneakyThrows
 	@Test
-	void saveNewUser_whenUserWithoutEmail_thenReturnBadRequest() {
-		UserCreateDto userCreateDto = UserCreateDto.builder().name("name").build();
-
-		mockMvc.perform(post("/users")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(userCreateDto)))
-				.andExpect(status().isBadRequest());
-
-		verify(userService, never()).save(userCreateDto);
-	}
-
-	@SneakyThrows
-	@Test
-	void saveNewUser_whenUserWithNotValidEmail_thenReturnBadRequest() {
-		UserCreateDto userCreateDto = UserCreateDto.builder().email("email").name("name").build();
-
-		mockMvc.perform(post("/users")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(userCreateDto)))
-				.andExpect(status().isBadRequest());
-
-		verify(userService, never()).save(userCreateDto);
-	}
-
-	@SneakyThrows
-	@Test
-	void saveNewUser_whenUserWithoutName_thenReturnBadRequest() {
-		UserCreateDto userCreateDto = UserCreateDto.builder().email("mail@mail.ru").build();
-
-		mockMvc.perform(post("/users")
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(userCreateDto)))
-				.andExpect(status().isBadRequest());
-
-		verify(userService, never()).save(userCreateDto);
-	}
-
-	@SneakyThrows
-	@Test
 	void getAllUsers() {
 		mockMvc.perform(get("/users"))
 				.andExpect(status().isOk());
@@ -132,20 +93,6 @@ class UserControllerTest {
 				.andExpect(status().isOk());
 
 		verify(userService).update(any(), any());
-	}
-
-	@SneakyThrows
-	@Test
-	void updateUser_whenEmailNotValid_thenReturnBadRequest() {
-		Long id = 1L;
-		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mail").name("name").build();
-
-		mockMvc.perform(patch("/users/{id}", id)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(userUpdateDto)))
-				.andExpect(status().isBadRequest());
-
-		verify(userService, never()).update(id, userUpdateDto);
 	}
 
 	@SneakyThrows

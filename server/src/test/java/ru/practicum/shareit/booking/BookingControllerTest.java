@@ -114,22 +114,6 @@ class BookingControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	//TODO перенести в Gateway
-	/*@SneakyThrows
-	@Test
-	void addBooking_whenBookingTimeNotValid_thenThrowBookingDateException() {
-		BookingRequestDto request = BookingRequestDto.builder()
-				.start(formattedDateTimeStart)
-				.end(formattedDateTimeEnd)
-				.build();
-
-		mockMvc.perform(post("/bookings")
-						.header(X_SHARER_USER_ID, 1L)
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(objectMapper.writeValueAsString(request)))
-				.andExpect(status().isBadRequest());
-	}*/
-
 	@SneakyThrows
 	@Test
 	void approve_whenApproved_thenReturnStatusOkWithBookingResponseDtoWithStatusApproved() {
@@ -337,19 +321,6 @@ class BookingControllerTest {
 					assertEquals("Параметр 'from' должен быть больше нуля.", exception.getMessage());
 				});
 	}
-
-	/*@SneakyThrows
-	@Test
-	void getAllBookings_whenNotValidState_thenThrowInvalidStateException() {
-		int from = 0;
-		int size = 1;
-		mockMvc.perform(get("/bookings")
-						.header(X_SHARER_USER_ID, 1L)
-						.param("state", "INVALID")
-						.param("from", String.valueOf(from))
-						.param("size", String.valueOf(size)))
-				.andExpect(status().isBadRequest());
-	}*/
 
 	@SneakyThrows
 	@Test
