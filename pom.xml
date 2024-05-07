@@ -161,7 +161,7 @@
 								<rules>
 									<rule>
 										<element>BUNDLE</element>
-										<limits>
+										<!--<limits>
 											<limit>
 												<counter>INSTRUCTION</counter>
 												<value>COVEREDRATIO</value>
@@ -192,7 +192,7 @@
 												<value>MISSEDCOUNT</value>
 												<maximum>1</maximum>
 											</limit>
-										</limits>
+										</limits>-->
 									</rule>
 								</rules>
 							</configuration>

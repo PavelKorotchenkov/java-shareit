@@ -271,6 +271,7 @@ class BookingControllerTest {
 		assertEquals(objectMapper.writeValueAsString(response), result);
 	}
 
+
 	@SneakyThrows
 	@Test
 	void getAllBookings_whenPageParamsNulls_thenReturnStatusOk() {

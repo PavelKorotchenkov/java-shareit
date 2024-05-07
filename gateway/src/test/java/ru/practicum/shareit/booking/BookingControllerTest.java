@@ -13,8 +13,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 
 import java.time.LocalDateTime;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -23,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BookingControllerTest {
 
 	public static final String X_SHARER_USER_ID = "X-Sharer-User-Id";
+	public static final long USER_ID = 1L;
 	@Autowired
 	private ObjectMapper objectMapper;
 	@Autowired
@@ -45,7 +45,7 @@ class BookingControllerTest {
 				.build();
 
 		mockMvc.perform(post("/bookings")
-						.header(X_SHARER_USER_ID, 1L)
+						.header(X_SHARER_USER_ID, USER_ID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(request)))
 				.andExpect(status().is2xxSuccessful());
@@ -63,7 +63,7 @@ class BookingControllerTest {
 				.build();
 
 		mockMvc.perform(post("/bookings")
-						.header(X_SHARER_USER_ID, 1L)
+						.header(X_SHARER_USER_ID, USER_ID)
 						.contentType(MediaType.APPLICATION_JSON)
 						.content(objectMapper.writeValueAsString(request)))
 				.andExpect(status().isBadRequest());
@@ -71,9 +71,28 @@ class BookingControllerTest {
 
 	@SneakyThrows
 	@Test
+	void approve() {
+		long bookingId = 1L;
+		mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
+						.header(X_SHARER_USER_ID, USER_ID)
+						.param("approved", String.valueOf(true)))
+				.andExpect(status().isOk());
+	}
+
+	@SneakyThrows
+	@Test
+	void getBookingInfoById() {
+		long bookingId = 1L;
+		mockMvc.perform(get("/bookings/{bookingId}", bookingId)
+						.header(X_SHARER_USER_ID, USER_ID))
+				.andExpect(status().isOk());
+	}
+
+	@SneakyThrows
+	@Test
 	void getAllBookings_whenValidState_thenReturnStatusOk() {
 		mockMvc.perform(get("/bookings")
-						.header(X_SHARER_USER_ID, 1L)
+						.header(X_SHARER_USER_ID, USER_ID)
 						.param("state", "ALL")
 						.param("from", String.valueOf(0))
 						.param("size", String.valueOf(10)))
@@ -84,7 +103,30 @@ class BookingControllerTest {
 	@Test
 	void getAllBookings_whenNotValidState_thenReturnStatusBadRequest() {
 		mockMvc.perform(get("/bookings")
-						.header(X_SHARER_USER_ID, 1L)
+						.header(X_SHARER_USER_ID, USER_ID)
+						.param("state", "INVALID")
+						.param("from", String.valueOf(0))
+						.param("size", String.valueOf(10)))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("Unknown state: INVALID"));
+	}
+
+	@SneakyThrows
+	@Test
+	void getAllOwnerBookings_whenValidState_thenReturnStatusOk() {
+		mockMvc.perform(get("/bookings/owner")
+						.header(X_SHARER_USER_ID, USER_ID)
+						.param("state", "ALL")
+						.param("from", String.valueOf(0))
+						.param("size", String.valueOf(10)))
+				.andExpect(status().is2xxSuccessful());
+	}
+
+	@SneakyThrows
+	@Test
+	void getAllOwnerBookings_whenNotValidState_thenReturnStatusBadRequest() {
+		mockMvc.perform(get("/bookings/owner")
+						.header(X_SHARER_USER_ID, USER_ID)
 						.param("state", "INVALID")
 						.param("from", String.valueOf(0))
 						.param("size", String.valueOf(10)))

@@ -81,7 +81,7 @@ class ItemRequestControllerTest {
 
 	@SneakyThrows
 	@Test
-	void getRequestById_whenInvokedWithCorrectId_thenReturnIRRDto() {
+	void getRequestById_whenInvokedWithCorrectId_thenReturnItemRequestResponseDto() {
 		long userId = 1L;
 		long requestId = 1L;
 		List<ItemDto> list = Collections.emptyList();
