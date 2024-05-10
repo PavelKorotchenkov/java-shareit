@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ class UserControllerTest {
 
 
 	@Test
-	void saveNewUser_whenValidUser_thenReturnOk() throws JsonProcessingException, Exception {
+	void saveNewUser_whenValidUser_thenReturnOk() throws Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().name("name").email("mail@mail.ru").build();
 		UserDto userDto = UserDto.builder().id(1L).name("name").email("mail@mail.ru").build();
 
@@ -78,7 +77,7 @@ class UserControllerTest {
 	}
 
 	@Test
-	void updateUser_whenValidParams_thenStatusOk() throws JsonProcessingException, Exception {
+	void updateUser_whenValidParams_thenStatusOk() throws Exception {
 		long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mail@mail.ru").name("name").build();
 

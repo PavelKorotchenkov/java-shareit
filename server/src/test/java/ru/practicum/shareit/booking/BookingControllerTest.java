@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +57,7 @@ class BookingControllerTest {
 	}
 
 	@Test
-	void addBooking_whenValidParams_thenReturnStatusOkWithBookingResponseDto() throws JsonProcessingException, Exception {
+	void addBooking_whenValidParams_thenReturnStatusOkWithBookingResponseDto() throws Exception {
 		BookingRequestDto request = BookingRequestDto.builder()
 				.start(formattedDateTimeStart)
 				.end(formattedDateTimeEnd)
@@ -97,7 +96,7 @@ class BookingControllerTest {
 	}
 
 	@Test
-	void addBooking_whenItemNotAvailable_thenThrowNotAvailableException() throws JsonProcessingException, Exception {
+	void addBooking_whenItemNotAvailable_thenThrowNotAvailableException() throws Exception {
 		BookingRequestDto request = BookingRequestDto.builder()
 				.start(formattedDateTimeStart)
 				.end(formattedDateTimeEnd)
@@ -229,7 +228,7 @@ class BookingControllerTest {
 	}
 
 	@Test
-	void getAllBookings_whenGetBookingsWithStateAll_thenReturnBookingsWithStateAll() throws JsonProcessingException, Exception {
+	void getAllBookings_whenGetBookingsWithStateAll_thenReturnBookingsWithStateAll() throws Exception {
 		int from = 0;
 		int size = 1;
 		long userId = 1L;
@@ -265,7 +264,7 @@ class BookingControllerTest {
 	}
 
 	@Test
-	void getAllBookings_whenPageParamsNulls_thenReturnStatusOk() throws JsonProcessingException, Exception {
+	void getAllBookings_whenPageParamsNulls_thenReturnStatusOk() throws Exception {
 		long userId = 1L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
 		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
@@ -314,7 +313,7 @@ class BookingControllerTest {
 	}
 
 	@Test
-	void getAllOwnerBookings() throws JsonProcessingException, Exception {
+	void getAllOwnerBookings() throws Exception {
 		int from = 0;
 		int size = 1;
 		long userId = 1L;

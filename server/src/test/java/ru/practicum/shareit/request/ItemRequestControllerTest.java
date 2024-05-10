@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ class ItemRequestControllerTest {
 	private RequestService requestService;
 
 	@Test
-	void getRequests_whenInvoked_thenReturnStatusOkWithEmptyListInBody() throws JsonProcessingException, Exception {
+	void getRequests_whenInvoked_thenReturnStatusOkWithEmptyListInBody() throws Exception {
 		long userId = 1L;
 		List<ItemRequestResponseDto> expectedList = List.of(ItemRequestResponseDto.builder().id(1L).description("desc").build());
 		when(requestService.getRequests(anyLong())).thenReturn(expectedList);
@@ -77,7 +76,7 @@ class ItemRequestControllerTest {
 	}
 
 	@Test
-	void getRequestById_whenInvokedWithCorrectId_thenReturnItemRequestResponseDto() throws JsonProcessingException, Exception {
+	void getRequestById_whenInvokedWithCorrectId_thenReturnItemRequestResponseDto() throws Exception {
 		long userId = 1L;
 		long requestId = 1L;
 		List<ItemDto> list = Collections.emptyList();

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +35,7 @@ class ItemControllerTest {
 	private ItemService itemService;
 
 	@Test
-	void addItem_whenValidItemCreateDto_thenReturnOk() throws JsonProcessingException, Exception {
+	void addItem_whenValidItemCreateDto_thenReturnOk() throws Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
@@ -62,7 +61,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void updateItem_whenValidHeader_thenReturnStatusOkWithUpdatedItemInBody() throws JsonProcessingException, Exception {
+	void updateItem_whenValidHeader_thenReturnStatusOkWithUpdatedItemInBody() throws Exception {
 		long itemId = 1L;
 
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
@@ -94,7 +93,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void updateItem_whenNoHeader_thenReturnInternalServerError() throws JsonProcessingException, Exception {
+	void updateItem_whenNoHeader_thenReturnInternalServerError() throws Exception {
 		long itemId = 1L;
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
 				.id(itemId)
@@ -112,7 +111,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void updateItem_whenUserIsNotOwner_thenReturnAccessDeniedException() throws JsonProcessingException, Exception {
+	void updateItem_whenUserIsNotOwner_thenReturnAccessDeniedException() throws Exception {
 		long itemId = 1L;
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
 				.id(itemId)
@@ -131,7 +130,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void getItem_whenValidHeader_thenReturnStatusOkWithItemWithFullInfoDtoInBody() throws JsonProcessingException, Exception {
+	void getItem_whenValidHeader_thenReturnStatusOkWithItemWithFullInfoDtoInBody() throws Exception {
 		long itemId = 1L;
 		ItemWithFullInfoDto expectedItem = ItemWithFullInfoDto.builder()
 				.id(itemId)
@@ -164,7 +163,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void findAllByOwnerId_whenValidHeader_thenReturnStatusOkWithExpectedListInBody() throws JsonProcessingException, Exception {
+	void findAllByOwnerId_whenValidHeader_thenReturnStatusOkWithExpectedListInBody() throws Exception {
 		int from = 0;
 		int size = 1;
 		List<ItemWithFullInfoDto> expectedList = List.of(ItemWithFullInfoDto.builder().id(1L).name("name").build());
@@ -239,7 +238,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void addComment_whenCommentNotEmpty_thenReturnStatusOkWithCommentInBody() throws JsonProcessingException, Exception {
+	void addComment_whenCommentNotEmpty_thenReturnStatusOkWithCommentInBody() throws Exception {
 		long itemId = 1L;
 		CommentRequestDto commentToAdd = CommentRequestDto.builder()
 				.text("comment")

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ class UserControllerTest {
 	private UserClient userClient;
 
 	@Test
-	void saveNewUser_whenUserValidParams_thenReturnStatusOk() throws JsonProcessingException, Exception {
+	void saveNewUser_whenUserValidParams_thenReturnStatusOk() throws Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().email("email@gmail.com").name("name").build();
 
 		mockMvc.perform(post("/users")
@@ -40,7 +39,7 @@ class UserControllerTest {
 	}
 
 	@Test
-	void saveNewUser_whenUserWithNotValidEmail_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void saveNewUser_whenUserWithNotValidEmail_thenReturnBadRequest() throws Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().email("email").name("name").build();
 
 		mockMvc.perform(post("/users")
@@ -52,7 +51,7 @@ class UserControllerTest {
 	}
 
 	@Test
-	void saveNewUser_whenUserWithoutName_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void saveNewUser_whenUserWithoutName_thenReturnBadRequest() throws Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().email("mail@mail.ru").build();
 
 		mockMvc.perform(post("/users")
@@ -64,7 +63,7 @@ class UserControllerTest {
 	}
 
 	@Test
-	void saveNewUser_whenUserWithoutEmail_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void saveNewUser_whenUserWithoutEmail_thenReturnBadRequest() throws Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().name("name").build();
 
 		mockMvc.perform(post("/users")
@@ -88,7 +87,7 @@ class UserControllerTest {
 	}
 
 	@Test
-	void updateUser_whenUserWithValidParams_thenReturnStatusOk() throws JsonProcessingException, Exception {
+	void updateUser_whenUserWithValidParams_thenReturnStatusOk() throws Exception {
 		long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mailupd@gmail.com").name("nameupd").build();
 
@@ -99,7 +98,7 @@ class UserControllerTest {
 	}
 
 	@Test
-	void updateUser_whenUserWithEmailNotValid_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void updateUser_whenUserWithEmailNotValid_thenReturnBadRequest() throws Exception {
 		long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mail").name("name").build();
 

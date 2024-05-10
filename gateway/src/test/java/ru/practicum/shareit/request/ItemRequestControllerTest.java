@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ class ItemRequestControllerTest {
 	private ItemRequestClient client;
 
 	@Test
-	void addRequest_whenValidDescription_thenAddNewRequest() throws JsonProcessingException, Exception {
+	void addRequest_whenValidDescription_thenAddNewRequest() throws Exception {
 		ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
 				.description("description").build();
 
@@ -45,7 +44,7 @@ class ItemRequestControllerTest {
 	}
 
 	@Test
-	void addRequest_whenNotValidDescription_thenThrowBadRequest() throws JsonProcessingException, Exception {
+	void addRequest_whenNotValidDescription_thenThrowBadRequest() throws Exception {
 		ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
 				.description("").build();
 
@@ -57,7 +56,7 @@ class ItemRequestControllerTest {
 	}
 
 	@Test
-	void getRequests() throws JsonProcessingException, Exception {
+	void getRequests() throws Exception {
 		mockMvc.perform(get("/requests")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.contentType(MediaType.APPLICATION_JSON)
@@ -74,7 +73,7 @@ class ItemRequestControllerTest {
 	}
 
 	@Test
-	void getRequestById() throws JsonProcessingException, Exception {
+	void getRequestById() throws Exception {
 		long requestId = 1L;
 		List<ItemDto> list = Collections.emptyList();
 		ItemRequestResponseDto expectedItemRequest = ItemRequestResponseDto.builder()

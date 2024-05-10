@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ class ItemControllerTest {
 	private ItemClient client;
 
 	@Test
-	void addItem_whenValidItemCreateDto_thenReturnOk() throws JsonProcessingException, Exception {
+	void addItem_whenValidItemCreateDto_thenReturnOk() throws Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
@@ -44,7 +43,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void addItem_whenItemCreateDtoWithoutName_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void addItem_whenItemCreateDtoWithoutName_thenReturnBadRequest() throws Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("")
 				.description("description")
@@ -58,7 +57,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void addItem_whenItemCreateDtoWithoutAvailable_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void addItem_whenItemCreateDtoWithoutAvailable_thenReturnBadRequest() throws Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
@@ -72,7 +71,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void addItem_whenItemCreateDtoWithoutDescription_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void addItem_whenItemCreateDtoWithoutDescription_thenReturnBadRequest() throws Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("")
@@ -86,7 +85,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void updateItem() throws JsonProcessingException, Exception {
+	void updateItem() throws Exception {
 		long itemId = 1L;
 
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
@@ -105,7 +104,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void getItem() throws JsonProcessingException, Exception {
+	void getItem() throws Exception {
 		long itemId = 1L;
 
 		mockMvc.perform(get("/items/{id}", itemId)
@@ -116,7 +115,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void findAllByOwnerId() throws JsonProcessingException, Exception {
+	void findAllByOwnerId() throws Exception {
 		mockMvc.perform(get("/items")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.param("from", String.valueOf(0))
@@ -137,7 +136,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void addComment_whenCommentNotEmpty_thenReturnStatusOk() throws JsonProcessingException, Exception {
+	void addComment_whenCommentNotEmpty_thenReturnStatusOk() throws Exception {
 		long itemId = 1L;
 		CommentRequestDto commentToAdd = CommentRequestDto.builder()
 				.text("comment")
@@ -151,7 +150,7 @@ class ItemControllerTest {
 	}
 
 	@Test
-	void addComment_whenCommentEmpty_thenReturnBadRequest() throws JsonProcessingException, Exception {
+	void addComment_whenCommentEmpty_thenReturnBadRequest() throws Exception {
 		long itemId = 1L;
 		CommentRequestDto commentToAdd = CommentRequestDto.builder().text("").build();
 

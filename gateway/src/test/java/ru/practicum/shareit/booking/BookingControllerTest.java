@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +33,7 @@ class BookingControllerTest {
 	private LocalDateTime end;
 
 	@Test
-	void addBooking_whenBookingTimeValid_thenReturnStatusOk() throws JsonProcessingException, Exception {
+	void addBooking_whenBookingTimeValid_thenReturnStatusOk() throws Exception {
 		start = LocalDateTime.now().plusDays(1);
 		end = LocalDateTime.now().plusDays(2);
 
@@ -51,7 +50,7 @@ class BookingControllerTest {
 	}
 
 	@Test
-	void addBooking_whenBookingTimeNotValid_thenReturnStatusBadRequest() throws JsonProcessingException, Exception {
+	void addBooking_whenBookingTimeNotValid_thenReturnStatusBadRequest() throws Exception {
 		start = LocalDateTime.now().minusDays(1);
 		end = LocalDateTime.now().plusDays(2);
 
