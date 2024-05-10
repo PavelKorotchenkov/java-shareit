@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,9 +57,8 @@ class BookingControllerTest {
 		formattedDateTimeEnd = end.format(formatter);
 	}
 
-	@SneakyThrows
 	@Test
-	void addBooking_whenValidParams_thenReturnStatusOkWithBookingResponseDto() {
+	void addBooking_whenValidParams_thenReturnStatusOkWithBookingResponseDto() throws JsonProcessingException, Exception {
 		BookingRequestDto request = BookingRequestDto.builder()
 				.start(formattedDateTimeStart)
 				.end(formattedDateTimeEnd)
@@ -97,9 +96,8 @@ class BookingControllerTest {
 		assertEquals(objectMapper.writeValueAsString(response), result);
 	}
 
-	@SneakyThrows
 	@Test
-	void addBooking_whenItemNotAvailable_thenThrowNotAvailableException() {
+	void addBooking_whenItemNotAvailable_thenThrowNotAvailableException() throws JsonProcessingException, Exception {
 		BookingRequestDto request = BookingRequestDto.builder()
 				.start(formattedDateTimeStart)
 				.end(formattedDateTimeEnd)
@@ -114,9 +112,8 @@ class BookingControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	@SneakyThrows
 	@Test
-	void approve_whenApproved_thenReturnStatusOkWithBookingResponseDtoWithStatusApproved() {
+	void approve_whenApproved_thenReturnStatusOkWithBookingResponseDtoWithStatusApproved() throws Exception {
 		long userId = 1L;
 		long bookingId = 1L;
 		boolean approved = true;
@@ -151,9 +148,8 @@ class BookingControllerTest {
 		assertEquals(objectMapper.writeValueAsString(response), result);
 	}
 
-	@SneakyThrows
 	@Test
-	void approve_whenRejected_thenReturnStatusOkWithBookingResponseDtoWithStatusRejected() {
+	void approve_whenRejected_thenReturnStatusOkWithBookingResponseDtoWithStatusRejected() throws Exception {
 		long userId = 1L;
 		long bookingId = 1L;
 		boolean approved = false;
@@ -188,9 +184,8 @@ class BookingControllerTest {
 		assertEquals(objectMapper.writeValueAsString(response), result);
 	}
 
-	@SneakyThrows
 	@Test
-	void getBookingInfoById_whenValidBookerIdAndOwnerId_thenReturnStatusOkWithBookingResponseDto() {
+	void getBookingInfoById_whenValidBookerIdAndOwnerId_thenReturnStatusOkWithBookingResponseDto() throws Exception {
 		long userId = 1L;
 		long bookingId = 1L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
@@ -224,9 +219,8 @@ class BookingControllerTest {
 		assertEquals(objectMapper.writeValueAsString(response), result);
 	}
 
-	@SneakyThrows
 	@Test
-	void getBookingInfoById_whenBookingNotFound_thenReturnNotFoundException() {
+	void getBookingInfoById_whenBookingNotFound_thenReturnNotFoundException() throws Exception {
 		when(bookingService.getInfoById(anyLong(), anyLong())).thenThrow(NotFoundException.class);
 
 		mockMvc.perform(get("/bookings/{bookingId}", anyLong())
@@ -234,9 +228,8 @@ class BookingControllerTest {
 				.andExpect(status().isNotFound());
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllBookings_whenGetBookingsWithStateAll_thenReturnBookingsWithStateAll() {
+	void getAllBookings_whenGetBookingsWithStateAll_thenReturnBookingsWithStateAll() throws JsonProcessingException, Exception {
 		int from = 0;
 		int size = 1;
 		long userId = 1L;
@@ -271,10 +264,8 @@ class BookingControllerTest {
 		assertEquals(objectMapper.writeValueAsString(response), result);
 	}
 
-
-	@SneakyThrows
 	@Test
-	void getAllBookings_whenPageParamsNulls_thenReturnStatusOk() {
+	void getAllBookings_whenPageParamsNulls_thenReturnStatusOk() throws JsonProcessingException, Exception {
 		long userId = 1L;
 		UserDto userDto = UserDto.builder().id(userId).email("mail@mail.ru").name("user").build();
 		ItemDto itemDto = ItemDto.builder().name("item").description("desc").build();
@@ -305,9 +296,8 @@ class BookingControllerTest {
 		assertEquals(objectMapper.writeValueAsString(response), result);
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllBookings_whenFromParamLessThanZero_thenThrowIllegalArgumentException() {
+	void getAllBookings_whenFromParamLessThanZero_thenThrowIllegalArgumentException() throws Exception {
 		int from = -1;
 		int size = 1;
 		mockMvc.perform(get("/bookings")
@@ -323,9 +313,8 @@ class BookingControllerTest {
 				});
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllOwnerBookings() {
+	void getAllOwnerBookings() throws JsonProcessingException, Exception {
 		int from = 0;
 		int size = 1;
 		long userId = 1L;

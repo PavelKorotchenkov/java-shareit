@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,9 +35,8 @@ class ItemControllerTest {
 	@MockBean
 	private ItemService itemService;
 
-	@SneakyThrows
 	@Test
-	void addItem_whenValidItemCreateDto_thenReturnOk() {
+	void addItem_whenValidItemCreateDto_thenReturnOk() throws JsonProcessingException, Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
@@ -62,9 +61,8 @@ class ItemControllerTest {
 				.andExpect(jsonPath("$.description").value("description"));
 	}
 
-	@SneakyThrows
 	@Test
-	void updateItem_whenValidHeader_thenReturnStatusOkWithUpdatedItemInBody() {
+	void updateItem_whenValidHeader_thenReturnStatusOkWithUpdatedItemInBody() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
@@ -95,9 +93,8 @@ class ItemControllerTest {
 				.andExpect(jsonPath("$.available").value(true));
 	}
 
-	@SneakyThrows
 	@Test
-	void updateItem_whenNoHeader_thenReturnInternalServerError() {
+	void updateItem_whenNoHeader_thenReturnInternalServerError() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
 				.id(itemId)
@@ -114,10 +111,8 @@ class ItemControllerTest {
 		verify(itemService, never()).update(itemUpdateDto);
 	}
 
-
-	@SneakyThrows
 	@Test
-	void updateItem_whenUserIsNotOwner_thenReturnAccessDeniedException() {
+	void updateItem_whenUserIsNotOwner_thenReturnAccessDeniedException() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
 				.id(itemId)
@@ -135,9 +130,8 @@ class ItemControllerTest {
 				.andExpect(status().isForbidden());
 	}
 
-	@SneakyThrows
 	@Test
-	void getItem_whenValidHeader_thenReturnStatusOkWithItemWithFullInfoDtoInBody() {
+	void getItem_whenValidHeader_thenReturnStatusOkWithItemWithFullInfoDtoInBody() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 		ItemWithFullInfoDto expectedItem = ItemWithFullInfoDto.builder()
 				.id(itemId)
@@ -160,9 +154,8 @@ class ItemControllerTest {
 				.andExpect(jsonPath("$.description").value("description"));
 	}
 
-	@SneakyThrows
 	@Test
-	void getItem_whenNoHeader_thenReturnInternalServerError() {
+	void getItem_whenNoHeader_thenReturnInternalServerError() throws Exception {
 		long id = 1L;
 		mockMvc.perform(get("/items/{id}", id))
 				.andExpect(status().isInternalServerError());
@@ -170,9 +163,8 @@ class ItemControllerTest {
 		verify(itemService, never()).getById(id, ID);
 	}
 
-	@SneakyThrows
 	@Test
-	void findAllByOwnerId_whenValidHeader_thenReturnStatusOkWithExpectedListInBody() {
+	void findAllByOwnerId_whenValidHeader_thenReturnStatusOkWithExpectedListInBody() throws JsonProcessingException, Exception {
 		int from = 0;
 		int size = 1;
 		List<ItemWithFullInfoDto> expectedList = List.of(ItemWithFullInfoDto.builder().id(1L).name("name").build());
@@ -191,18 +183,16 @@ class ItemControllerTest {
 				.andExpect(jsonPath("$[0].name").value("name"));
 	}
 
-	@SneakyThrows
 	@Test
-	void findAllByOwnerId_whenNoHeader_thenReturnInternalServerError() {
+	void findAllByOwnerId_whenNoHeader_thenReturnInternalServerError() throws Exception {
 		mockMvc.perform(get("/items"))
 				.andExpect(status().isInternalServerError());
 
 		verify(itemService, never()).findByOwnerId(anyInt(), any());
 	}
 
-	@SneakyThrows
 	@Test
-	void findAllByOwnerId_whenNotValidPage_thenReturnIllegalArgumentException() {
+	void findAllByOwnerId_whenNotValidPage_thenReturnIllegalArgumentException() throws Exception {
 		int from = -1;
 		int size = 1;
 
@@ -214,9 +204,8 @@ class ItemControllerTest {
 		verify(itemService, never()).findByOwnerId(anyInt(), any());
 	}
 
-	@SneakyThrows
 	@Test
-	void searchBy_whenValidPage_thenReturnStatusOk() {
+	void searchBy_whenValidPage_thenReturnStatusOk() throws Exception {
 		int from = 0;
 		int size = 1;
 		String searchBy = "text";
@@ -229,9 +218,8 @@ class ItemControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void searchBy_whenNotValidPage_thenReturnIllegalArgumentException() {
+	void searchBy_whenNotValidPage_thenReturnIllegalArgumentException() throws Exception {
 		int from = -1;
 		int size = 1;
 		String searchBy = "text";
@@ -250,9 +238,8 @@ class ItemControllerTest {
 		verify(itemService, never()).searchBy(anyLong(), anyString(), any());
 	}
 
-	@SneakyThrows
 	@Test
-	void addComment_whenCommentNotEmpty_thenReturnStatusOkWithCommentInBody() {
+	void addComment_whenCommentNotEmpty_thenReturnStatusOkWithCommentInBody() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 		CommentRequestDto commentToAdd = CommentRequestDto.builder()
 				.text("comment")

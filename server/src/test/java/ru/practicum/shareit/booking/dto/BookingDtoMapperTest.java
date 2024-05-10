@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -10,6 +9,8 @@ import ru.practicum.shareit.booking.Status;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @JsonTest
@@ -17,9 +18,8 @@ class BookingDtoMapperTest {
 	@Autowired
 	private JacksonTester<BookingResponseDto> bookingResponseDtoJacksonTester;
 
-	@SneakyThrows
 	@Test
-	void toDto() {
+	void toDto() throws IOException {
 		BookingResponseDto responseDto = BookingResponseDto.builder()
 				.id(1L)
 				.start("2024-04-10'T'10:10:10")

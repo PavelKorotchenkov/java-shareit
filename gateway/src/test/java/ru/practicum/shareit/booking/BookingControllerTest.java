@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -33,9 +33,8 @@ class BookingControllerTest {
 	private LocalDateTime start;
 	private LocalDateTime end;
 
-	@SneakyThrows
 	@Test
-	void addBooking_whenBookingTimeValid_thenReturnStatusOk() {
+	void addBooking_whenBookingTimeValid_thenReturnStatusOk() throws JsonProcessingException, Exception {
 		start = LocalDateTime.now().plusDays(1);
 		end = LocalDateTime.now().plusDays(2);
 
@@ -51,9 +50,8 @@ class BookingControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void addBooking_whenBookingTimeNotValid_thenReturnStatusBadRequest() {
+	void addBooking_whenBookingTimeNotValid_thenReturnStatusBadRequest() throws JsonProcessingException, Exception {
 		start = LocalDateTime.now().minusDays(1);
 		end = LocalDateTime.now().plusDays(2);
 
@@ -69,9 +67,8 @@ class BookingControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	@SneakyThrows
 	@Test
-	void approve() {
+	void approve() throws Exception {
 		long bookingId = 1L;
 		mockMvc.perform(patch("/bookings/{bookingId}", bookingId)
 						.header(X_SHARER_USER_ID, USER_ID)
@@ -79,18 +76,16 @@ class BookingControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void getBookingInfoById() {
+	void getBookingInfoById() throws Exception {
 		long bookingId = 1L;
 		mockMvc.perform(get("/bookings/{bookingId}", bookingId)
 						.header(X_SHARER_USER_ID, USER_ID))
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllBookings_whenValidState_thenReturnStatusOk() {
+	void getAllBookings_whenValidState_thenReturnStatusOk() throws Exception {
 		mockMvc.perform(get("/bookings")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.param("state", "ALL")
@@ -99,9 +94,8 @@ class BookingControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllBookings_whenNotValidState_thenReturnStatusBadRequest() {
+	void getAllBookings_whenNotValidState_thenReturnStatusBadRequest() throws Exception {
 		mockMvc.perform(get("/bookings")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.param("state", "INVALID")
@@ -111,9 +105,8 @@ class BookingControllerTest {
 				.andExpect(jsonPath("$.error").value("Unknown state: INVALID"));
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllOwnerBookings_whenValidState_thenReturnStatusOk() {
+	void getAllOwnerBookings_whenValidState_thenReturnStatusOk() throws Exception {
 		mockMvc.perform(get("/bookings/owner")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.param("state", "ALL")
@@ -122,9 +115,8 @@ class BookingControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllOwnerBookings_whenNotValidState_thenReturnStatusBadRequest() {
+	void getAllOwnerBookings_whenNotValidState_thenReturnStatusBadRequest() throws Exception {
 		mockMvc.perform(get("/bookings/owner")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.param("state", "INVALID")

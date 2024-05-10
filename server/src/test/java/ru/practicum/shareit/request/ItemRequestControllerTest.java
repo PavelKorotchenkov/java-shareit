@@ -1,7 +1,7 @@
 package ru.practicum.shareit.request;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -35,9 +35,8 @@ class ItemRequestControllerTest {
 	@MockBean
 	private RequestService requestService;
 
-	@SneakyThrows
 	@Test
-	void getRequests_whenInvoked_thenReturnStatusOkWithEmptyListInBody() {
+	void getRequests_whenInvoked_thenReturnStatusOkWithEmptyListInBody() throws JsonProcessingException, Exception {
 		long userId = 1L;
 		List<ItemRequestResponseDto> expectedList = List.of(ItemRequestResponseDto.builder().id(1L).description("desc").build());
 		when(requestService.getRequests(anyLong())).thenReturn(expectedList);
@@ -50,9 +49,8 @@ class ItemRequestControllerTest {
 				.andExpect(jsonPath("$[0].description").value("desc"));
 	}
 
-	@SneakyThrows
 	@Test
-	void getOtherRequests_whenPageParamsValid_thenReturnStatusOkWithEmptyListInBody() {
+	void getOtherRequests_whenPageParamsValid_thenReturnStatusOkWithEmptyListInBody() throws Exception {
 		long userId = 1L;
 		List<ItemRequestResponseDto> expectedList = List.of(ItemRequestResponseDto.builder()
 				.id(1L).description("desc").build());
@@ -65,9 +63,8 @@ class ItemRequestControllerTest {
 				.andExpect(jsonPath("$[0].description").value("desc"));
 	}
 
-	@SneakyThrows
 	@Test
-	void getOtherRequests_whenPageParamsNotValid_thenReturnInternalServerError() {
+	void getOtherRequests_whenPageParamsNotValid_thenReturnInternalServerError() throws Exception {
 		long userId = 1L;
 		int from = -1;
 		int size = 2;
@@ -79,9 +76,8 @@ class ItemRequestControllerTest {
 				.andExpect(status().isInternalServerError());
 	}
 
-	@SneakyThrows
 	@Test
-	void getRequestById_whenInvokedWithCorrectId_thenReturnItemRequestResponseDto() {
+	void getRequestById_whenInvokedWithCorrectId_thenReturnItemRequestResponseDto() throws JsonProcessingException, Exception {
 		long userId = 1L;
 		long requestId = 1L;
 		List<ItemDto> list = Collections.emptyList();

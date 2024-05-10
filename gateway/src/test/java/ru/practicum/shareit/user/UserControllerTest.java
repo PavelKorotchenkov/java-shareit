@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,9 +29,8 @@ class UserControllerTest {
 	@MockBean
 	private UserClient userClient;
 
-	@SneakyThrows
 	@Test
-	void saveNewUser_whenUserValidParams_thenReturnStatusOk() {
+	void saveNewUser_whenUserValidParams_thenReturnStatusOk() throws JsonProcessingException, Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().email("email@gmail.com").name("name").build();
 
 		mockMvc.perform(post("/users")
@@ -40,9 +39,8 @@ class UserControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void saveNewUser_whenUserWithNotValidEmail_thenReturnBadRequest() {
+	void saveNewUser_whenUserWithNotValidEmail_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().email("email").name("name").build();
 
 		mockMvc.perform(post("/users")
@@ -53,9 +51,8 @@ class UserControllerTest {
 		verify(userClient, never()).saveNewUser(any());
 	}
 
-	@SneakyThrows
 	@Test
-	void saveNewUser_whenUserWithoutName_thenReturnBadRequest() {
+	void saveNewUser_whenUserWithoutName_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().email("mail@mail.ru").build();
 
 		mockMvc.perform(post("/users")
@@ -66,9 +63,8 @@ class UserControllerTest {
 		verify(userClient, never()).saveNewUser(any());
 	}
 
-	@SneakyThrows
 	@Test
-	void saveNewUser_whenUserWithoutEmail_thenReturnBadRequest() {
+	void saveNewUser_whenUserWithoutEmail_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().name("name").build();
 
 		mockMvc.perform(post("/users")
@@ -79,23 +75,20 @@ class UserControllerTest {
 		verify(userClient, never()).saveNewUser(any());
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllUsers() {
+	void getAllUsers() throws Exception {
 		mockMvc.perform(get("/users"))
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void getUserById() {
+	void getUserById() throws Exception {
 		mockMvc.perform(get("/users/{id}", anyLong()))
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void updateUser_whenUserWithValidParams_thenReturnStatusOk() {
+	void updateUser_whenUserWithValidParams_thenReturnStatusOk() throws JsonProcessingException, Exception {
 		long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mailupd@gmail.com").name("nameupd").build();
 
@@ -105,9 +98,8 @@ class UserControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void updateUser_whenUserWithEmailNotValid_thenReturnBadRequest() {
+	void updateUser_whenUserWithEmailNotValid_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mail").name("name").build();
 
@@ -119,9 +111,8 @@ class UserControllerTest {
 		verify(userClient, never()).updateUser(anyLong(), any());
 	}
 
-	@SneakyThrows
 	@Test
-	void deleteUser_whenInvoked_thenReturnOk() {
+	void deleteUser_whenInvoked_thenReturnOk() throws Exception {
 		mockMvc.perform(delete("/users/{id}", anyLong()))
 				.andExpect(status().is2xxSuccessful());
 	}

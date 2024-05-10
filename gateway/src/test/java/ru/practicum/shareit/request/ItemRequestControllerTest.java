@@ -1,7 +1,7 @@
 package ru.practicum.shareit.request;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,9 +32,8 @@ class ItemRequestControllerTest {
 	@MockBean
 	private ItemRequestClient client;
 
-	@SneakyThrows
 	@Test
-	void addRequest_whenValidDescription_thenAddNewRequest() {
+	void addRequest_whenValidDescription_thenAddNewRequest() throws JsonProcessingException, Exception {
 		ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
 				.description("description").build();
 
@@ -45,9 +44,8 @@ class ItemRequestControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void addRequest_whenNotValidDescription_thenThrowBadRequest() {
+	void addRequest_whenNotValidDescription_thenThrowBadRequest() throws JsonProcessingException, Exception {
 		ItemRequestCreateDto itemRequestCreateDto = ItemRequestCreateDto.builder()
 				.description("").build();
 
@@ -58,9 +56,8 @@ class ItemRequestControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	@SneakyThrows
 	@Test
-	void getRequests() {
+	void getRequests() throws JsonProcessingException, Exception {
 		mockMvc.perform(get("/requests")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.contentType(MediaType.APPLICATION_JSON)
@@ -68,18 +65,16 @@ class ItemRequestControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void getOtherRequests() {
+	void getOtherRequests() throws Exception {
 		mockMvc.perform(get("/requests/all")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void getRequestById() {
+	void getRequestById() throws JsonProcessingException, Exception {
 		long requestId = 1L;
 		List<ItemDto> list = Collections.emptyList();
 		ItemRequestResponseDto expectedItemRequest = ItemRequestResponseDto.builder()

@@ -291,33 +291,33 @@ class ItemServiceImplTest {
 		assertEquals(itemDto.getName(), result.get(0).getName());
 	}
 
-		@Test
-		void addComment_whenAuthorHadBooking_thenSaveCommentAndReturnResponseDto() {
-			long userId = 1L;
-			long itemId = 1L;
-			String text = "comment";
-			UserDto author = UserDto.builder().id(userId).build();
-			Item item = Item.builder()
-					.id(itemId).name("item").owner(UserDtoMapper.ofUserDto(author)).build();
-			Booking booking = Booking.builder().id(1L).item(item).build();
+	@Test
+	void addComment_whenAuthorHadBooking_thenSaveCommentAndReturnResponseDto() {
+		long userId = 1L;
+		long itemId = 1L;
+		String text = "comment";
+		UserDto author = UserDto.builder().id(userId).build();
+		Item item = Item.builder()
+				.id(itemId).name("item").owner(UserDtoMapper.ofUserDto(author)).build();
+		Booking booking = Booking.builder().id(1L).item(item).build();
 
-			CommentRequestDto commentRequestDto = CommentRequestDto.builder()
-					.authorId(userId).itemId(itemId).text(text).build();
-			Comment comment = Comment.builder()
-					.author(UserDtoMapper.ofUserDto(author)).item(item).text(text).build();
+		CommentRequestDto commentRequestDto = CommentRequestDto.builder()
+				.authorId(userId).itemId(itemId).text(text).build();
+		Comment comment = Comment.builder()
+				.author(UserDtoMapper.ofUserDto(author)).item(item).text(text).build();
 
-			when(userService.getById(userId)).thenReturn(author);
-			when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-			when(bookingRepository.findTop1ByItemIdAndBookerIdAndStatusAndEndDateBefore(anyLong(), anyLong(), any(), any()))
-					.thenReturn(Optional.of(booking));
-			when(commentRepository.save(comment)).thenReturn(comment);
+		when(userService.getById(userId)).thenReturn(author);
+		when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+		when(bookingRepository.findTop1ByItemIdAndBookerIdAndStatusAndEndDateBefore(anyLong(), anyLong(), any(), any()))
+				.thenReturn(Optional.of(booking));
+		when(commentRepository.save(comment)).thenReturn(comment);
 
-			CommentResponseDto commentResponseDto = itemService.addComment(commentRequestDto);
+		CommentResponseDto commentResponseDto = itemService.addComment(commentRequestDto);
 
-			assertEquals(commentRequestDto.getText(), commentResponseDto.getText());
+		assertEquals(commentRequestDto.getText(), commentResponseDto.getText());
 
-			verify(commentRepository).save(comment);
-		}
+		verify(commentRepository).save(comment);
+	}
 
 	@Test
 	void addComment_whenAuthorDoesNotHaveFinishedBooking_throwNotAvailableException() {

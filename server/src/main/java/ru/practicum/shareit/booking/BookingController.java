@@ -53,7 +53,7 @@ public class BookingController {
 												   @RequestParam(defaultValue = "0") int from,
 												   @RequestParam(defaultValue = "10") int size) {
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
-		BookingState validState = BookingState.getState(state).get();
+		BookingState validState = BookingState.valueOf(state);
 		List<BookingResponseDto> allBookings = bookingService.getAllBookings(userId, validState, page);
 		log.info("Обработан запрос на получение всех бронирований пользователя с userId = {}, бронирования = {}", userId, allBookings);
 		return allBookings;
@@ -65,7 +65,7 @@ public class BookingController {
 														@RequestParam(defaultValue = "0") int from,
 														@RequestParam(defaultValue = "10") int size) {
 		PageRequest page = OffsetPageRequest.createPageRequest(from, size);
-		BookingState validState = BookingState.getState(state).get();
+		BookingState validState = BookingState.valueOf(state);
 		List<BookingResponseDto> allBookings = bookingService.getAllOwnerBookings(userId, validState, page);
 		log.info("Обработан запрос на получение всех бронирований вещей владельца с userId = {}, со статусом = {}", userId, validState);
 		return allBookings;

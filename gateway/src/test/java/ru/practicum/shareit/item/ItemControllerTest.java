@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,9 +29,8 @@ class ItemControllerTest {
 	@MockBean
 	private ItemClient client;
 
-	@SneakyThrows
 	@Test
-	void addItem_whenValidItemCreateDto_thenReturnOk() {
+	void addItem_whenValidItemCreateDto_thenReturnOk() throws JsonProcessingException, Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
@@ -44,9 +43,8 @@ class ItemControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void addItem_whenItemCreateDtoWithoutName_thenReturnBadRequest() {
+	void addItem_whenItemCreateDtoWithoutName_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("")
 				.description("description")
@@ -59,9 +57,8 @@ class ItemControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	@SneakyThrows
 	@Test
-	void addItem_whenItemCreateDtoWithoutAvailable_thenReturnBadRequest() {
+	void addItem_whenItemCreateDtoWithoutAvailable_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("description")
@@ -74,9 +71,8 @@ class ItemControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	@SneakyThrows
 	@Test
-	void addItem_whenItemCreateDtoWithoutDescription_thenReturnBadRequest() {
+	void addItem_whenItemCreateDtoWithoutDescription_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		ItemCreateDto itemCreateDtoToSave = ItemCreateDto.builder()
 				.name("name")
 				.description("")
@@ -89,9 +85,8 @@ class ItemControllerTest {
 				.andExpect(status().isBadRequest());
 	}
 
-	@SneakyThrows
 	@Test
-	void updateItem() {
+	void updateItem() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 
 		ItemUpdateDto itemUpdateDto = ItemUpdateDto.builder()
@@ -109,9 +104,8 @@ class ItemControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void getItem() {
+	void getItem() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 
 		mockMvc.perform(get("/items/{id}", itemId)
@@ -121,9 +115,8 @@ class ItemControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void findAllByOwnerId() {
+	void findAllByOwnerId() throws JsonProcessingException, Exception {
 		mockMvc.perform(get("/items")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.param("from", String.valueOf(0))
@@ -133,9 +126,8 @@ class ItemControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void searchBy() {
+	void searchBy() throws Exception {
 		mockMvc.perform(get("/items/search")
 						.header(X_SHARER_USER_ID, USER_ID)
 						.param("text", "text")
@@ -144,9 +136,8 @@ class ItemControllerTest {
 				.andExpect(status().is2xxSuccessful());
 	}
 
-	@SneakyThrows
 	@Test
-	void addComment_whenCommentNotEmpty_thenReturnStatusOk() {
+	void addComment_whenCommentNotEmpty_thenReturnStatusOk() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 		CommentRequestDto commentToAdd = CommentRequestDto.builder()
 				.text("comment")
@@ -159,9 +150,8 @@ class ItemControllerTest {
 				.andExpect(status().isOk());
 	}
 
-	@SneakyThrows
 	@Test
-	void addComment_whenCommentEmpty_thenReturnBadRequest() {
+	void addComment_whenCommentEmpty_thenReturnBadRequest() throws JsonProcessingException, Exception {
 		long itemId = 1L;
 		CommentRequestDto commentToAdd = CommentRequestDto.builder().text("").build();
 

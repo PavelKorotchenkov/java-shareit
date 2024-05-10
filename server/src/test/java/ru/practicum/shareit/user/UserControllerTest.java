@@ -1,7 +1,7 @@
 package ru.practicum.shareit.user;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -33,9 +33,8 @@ class UserControllerTest {
 	private UserService userService;
 
 
-	@SneakyThrows
 	@Test
-	void saveNewUser_whenValidUser_thenReturnOk() {
+	void saveNewUser_whenValidUser_thenReturnOk() throws JsonProcessingException, Exception {
 		UserCreateDto userCreateDto = UserCreateDto.builder().name("name").email("mail@mail.ru").build();
 		UserDto userDto = UserDto.builder().id(1L).name("name").email("mail@mail.ru").build();
 
@@ -50,28 +49,25 @@ class UserControllerTest {
 				.andExpect(jsonPath("$.email").value("mail@mail.ru"));
 	}
 
-	@SneakyThrows
 	@Test
-	void getAllUsers() {
+	void getAllUsers() throws Exception {
 		mockMvc.perform(get("/users"))
 				.andExpect(status().isOk());
 
 		verify(userService).getAll();
 	}
 
-	@SneakyThrows
 	@Test
-	void getUserById() {
-		long id = 0L;
+	void getUserById() throws Exception {
+		long id = 1L;
 		mockMvc.perform(get("/users/{id}", id))
 				.andExpect(status().isOk());
 
 		verify(userService).getById(id);
 	}
 
-	@SneakyThrows
 	@Test
-	void getUserById_whenNoUser_thenReturnNotFound() {
+	void getUserById_whenNoUser_thenReturnNotFound() throws Exception {
 		long id = 0L;
 		when(userService.getById(id)).thenThrow(NotFoundException.class);
 
@@ -81,9 +77,8 @@ class UserControllerTest {
 		verify(userService).getById(id);
 	}
 
-	@SneakyThrows
 	@Test
-	void updateUser_whenValidParams_thenStatusOk() {
+	void updateUser_whenValidParams_thenStatusOk() throws JsonProcessingException, Exception {
 		long id = 1L;
 		UserUpdateDto userUpdateDto = UserUpdateDto.builder().email("mail@mail.ru").name("name").build();
 
@@ -95,9 +90,8 @@ class UserControllerTest {
 		verify(userService).update(any(), any());
 	}
 
-	@SneakyThrows
 	@Test
-	void deleteUser_whenInvoked_thenReturnOk() {
+	void deleteUser_whenInvoked_thenReturnOk() throws Exception {
 		Long id = 1L;
 		mockMvc.perform(delete("/users/{id}", id))
 				.andExpect(status().is2xxSuccessful());

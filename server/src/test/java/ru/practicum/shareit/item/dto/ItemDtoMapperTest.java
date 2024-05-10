@@ -1,11 +1,12 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.boot.test.json.JacksonTester;
 import org.springframework.boot.test.json.JsonContent;
+
+import java.io.IOException;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -15,9 +16,8 @@ class ItemDtoMapperTest {
 	@Autowired
 	private JacksonTester<ItemDto> itemDtoJacksonTester;
 
-	@SneakyThrows
 	@Test
-	void toDto() {
+	void toDto() throws IOException {
 		ItemDto itemDto = ItemDto.builder()
 				.id(1L)
 				.name("item")

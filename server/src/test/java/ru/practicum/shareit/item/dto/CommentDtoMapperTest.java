@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -9,6 +8,7 @@ import org.springframework.boot.test.json.JsonContent;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.user.model.User;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -21,9 +21,8 @@ class CommentDtoMapperTest {
 	@Autowired
 	private JacksonTester<Comment> commentJacksonTester;
 
-	@SneakyThrows
 	@Test
-	void toResponseDto_whenCreatedNotNull_thenReturnOk() {
+	void toResponseDto_whenCreatedNotNull_thenReturnOk() throws IOException {
 		Comment comment = Comment.builder()
 				.id(1L)
 				.text("text")
@@ -39,9 +38,8 @@ class CommentDtoMapperTest {
 		assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo("2024-01-10T10:10:10");
 	}
 
-	@SneakyThrows
 	@Test
-	void toResponseDto_whenCreatedNull_thenReturnOk() {
+	void toResponseDto_whenCreatedNull_thenReturnOk() throws IOException {
 		Comment comment = Comment.builder()
 				.id(1L)
 				.text("text")
@@ -57,9 +55,8 @@ class CommentDtoMapperTest {
 		assertThat(result).extractingJsonPathStringValue("$.created").isEqualTo(null);
 	}
 
-	@SneakyThrows
 	@Test
-	void toComment() {
+	void toComment() throws IOException {
 		CommentRequestDto commentRequestDto = CommentRequestDto.builder()
 				.text("text")
 				.build();
